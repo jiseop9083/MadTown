@@ -9,11 +9,14 @@ export class MyRoom extends Room<MyRoomState> {
     this.setState(new MyRoomState());
 
     // handle player input
-    this.onMessage(0, (client, data) => {
-      // get reference to the player who sent the message
+    this.onMessage("chat", (client, data) => {
       const player = this.state.players.get(client.sessionId);
-      // enqueue input to user input buffer.
-      player.inputQueue.push(data.input);
+
+      // Broadcast the chat message to all clients in the room
+      this.broadcast("chat", {
+        playerId: client.sessionId,
+        message: data.message
+      });
     });
 
     let elapsedTime = 0;

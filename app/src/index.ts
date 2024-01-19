@@ -36,8 +36,25 @@ export class GameScene extends Scene {
 
     try {
       this.room = await this.client.joinOrCreate("my_room");
+
+      this.input.keyboard.on('keydown-ENTER', () => {
+        const message = prompt("Enter your message:");
+        if (message) {
+          // Send chat message to the server
+          this.room.send("chat", { message });
+        }
+      });
+  
+      // Handle incoming chat messages from the server
+      this.room.onMessage("chat", (messageData) => {
+        const { playerId, message } = messageData;
+  
+        // Display the chat message (you may want to format it better)
+        console.log(`Player ${playerId}: ${message}`);
+      });
+
       this.room.state.players.onAdd((player, sessionId) => {
-      const entity = this.physics.add.image(player.x, player.y, 'santa');
+        const entity = this.physics.add.image(player.x, player.y, 'santa');
       console.log(entity);
       entity.setScale(1);
 
@@ -81,6 +98,8 @@ export class GameScene extends Scene {
       console.error(e);
     }
   }
+
+  
 
   onLeave(player){
       this.room.state.players.onRemove((player, sessionId) => {
