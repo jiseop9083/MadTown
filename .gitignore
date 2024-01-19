@@ -1,0 +1,5 @@
+app/node_modlues
+app/.parcel-cache
+app/dist
+
+server/node_modlues
