@@ -1,5 +1,6 @@
 app/node_modules
 app/.parcel-cache
 app/dist
+.env
 
 server/node_modules
