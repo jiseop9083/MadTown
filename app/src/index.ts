@@ -44,8 +44,11 @@ export class GameScene extends Scene {
       this.input.keyboard.on('keydown-ENTER', () => {
         const message = prompt("Enter your message:");
         if (message) {
-          // Send chat message to the server
-          this.room.send("chat", { message });
+          // Send chat message to the server with the player's position
+          this.room.send("chat", {
+            message,
+            position: { x: this.currentPlayer.x, y: this.currentPlayer.y }
+          });
         }
       });
 
@@ -69,13 +72,24 @@ export class GameScene extends Scene {
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
-        const { playerId, message } = messageData;
-  
-        this.chatText.text += `Player ${playerId}: ${message}\n`;
-
-        // 스크롤이 있는 경우 스크롤을 맨 아래로 이동
-        this.chatText.setScrollFactor(0, 0);
+        const { playerId, message, position } = messageData;
+    
+        // Check if the player is nearby before displaying the message
+        const distance = Phaser.Math.Distance.Between(
+          this.currentPlayer.x,
+          this.currentPlayer.y,
+          position.x,
+          position.y
+        );
+    
+        if (distance < 100) {
+          this.chatText.text += `Player ${playerId}: ${message}\n`;
+    
+          // Scroll to the bottom if there is a scroll
+          this.chatText.setScrollFactor(0, 0);
+        }
       });
+    
 
       
 
@@ -205,7 +219,6 @@ export class GameScene extends Scene {
 // game config
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    
     width: 576,
     height: 640,
     backgroundColor: '#b6d53c',
