@@ -8,7 +8,6 @@ export class GameScene extends Scene {
   preload() {
     // preload scene
     this.load.image('santa', `${process.env.MOCK_HTTP_SERVER_URI}/assets/mountainUp.png`);
-    this.load.image('ship_0001', 'https://cdn.glitch.global/3e033dcd-d5be-4db4-99e8-086ae90969ec/ship_0001.png');
     this.cursorKeys = this.input.keyboard.createCursorKeys();
   }
 
@@ -30,14 +29,39 @@ export class GameScene extends Scene {
   remoteRef: Phaser.GameObjects.Rectangle;
 
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+  chatText: Phaser.GameObjects.Text;
 
   async create() {
     console.log("Joining room...");
 
     try {
       this.room = await this.client.joinOrCreate("my_room");
+
+      this.input.keyboard.on('keydown-ENTER', () => {
+        const message = prompt("Enter your message:");
+        if (message) {
+          // Send chat message to the server
+          this.room.send("chat", { message });
+        }
+      });
+
+      this.chatText = this.add.text(10, 10, '', {
+        fontSize: '16px',
+        color: '#ffffff',
+      });
+
+      // Handle incoming chat messages from the server
+      this.room.onMessage("chat", (messageData) => {
+        const { playerId, message } = messageData;
+  
+        this.chatText.text += `Player ${playerId}: ${message}\n`;
+
+        // 스크롤이 있는 경우 스크롤을 맨 아래로 이동
+        this.chatText.setScrollFactor(0, 0);
+      });
+
       this.room.state.players.onAdd((player, sessionId) => {
-      const entity = this.physics.add.image(player.x, player.y, 'santa');
+        const entity = this.physics.add.image(player.x, player.y, 'santa');
       console.log(entity);
       entity.setScale(1);
 
@@ -81,6 +105,8 @@ export class GameScene extends Scene {
       console.error(e);
     }
   }
+
+  
 
   onLeave(player){
       this.room.state.players.onRemove((player, sessionId) => {
