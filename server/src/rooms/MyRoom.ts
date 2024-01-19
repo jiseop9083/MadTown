@@ -12,13 +12,19 @@ export class MyRoom extends Room<MyRoomState> {
     this.onMessage("chat", (client, data) => {
       const player = this.state.players.get(client.sessionId);
       player.inputQueue.push(data.input);
-
-      // Broadcast the chat message to all clients in the room
+    
+      // Broadcast the chat message to nearby clients
       this.broadcast("chat", {
         playerId: client.sessionId,
-        message: data.message
+        message: data.message,
+        position: { x: player.x, y: player.y }
       });
     });
+
+    this.onMessage(0, (client, data) => {
+      const player = this.state.players.get(client.sessionId);
+      player.inputQueue.push(data.input);
+    });  
 
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {
