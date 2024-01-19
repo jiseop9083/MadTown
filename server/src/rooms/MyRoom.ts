@@ -11,6 +11,7 @@ export class MyRoom extends Room<MyRoomState> {
     // handle player input
     this.onMessage("chat", (client, data) => {
       const player = this.state.players.get(client.sessionId);
+      player.inputQueue.push(data.input);
 
       // Broadcast the chat message to all clients in the room
       this.broadcast("chat", {
