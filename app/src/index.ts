@@ -1,20 +1,26 @@
-import {Scene} from "phaser";
+import { Scene } from "phaser";
 import { Client, Room } from "colyseus.js";
 const dotenv = require('dotenv');
 dotenv.config();
 
+const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
+const SERVER_URI = process.env.MOCK_SERVER_URI;
+this.chatText = this.add.text(0, 0, '', {
+  fontSize: '16px',
+  color: '#ffffff',
+});
 // custom scene class
 export class GameScene extends Scene {
   preload() {
     // preload scene
-    this.load.image('santa', `${process.env.MOCK_HTTP_SERVER_URI}/image/player-mountainUp.png`);
-    this.load.image('tiles', `${process.env.MOCK_HTTP_SERVER_URI}/image/tiles-tile_map.png`);
-    this.load.tilemapTiledJSON('classroom', `${process.env.MOCK_HTTP_SERVER_URI}/json/tiles-classroom.json`);
+    this.load.image('santa', `${HTTP_SERVER_URI}/image/player-mountainUp.png`);
+    this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
+    this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     
   }
 
-  client = new Client(`${process.env.MOCK_SERVER_URI}`);
+  client = new Client(`${SERVER_URI}`);
 
   // process.env.SERVER_URI
   room: Room;
@@ -45,30 +51,29 @@ export class GameScene extends Scene {
         const message = prompt("Enter your message:");
         if (message) {
           // Send chat message to the server with the player's position
-          this.room.send("chat", {
+          this.room.send("chat", {"chat": {
             message,
             position: { x: this.currentPlayer.x, y: this.currentPlayer.y }
-          });
+          }});
         }
       });
 
-      this.chatText = this.add.text(10, 10, '', {
+      
+
+
+      const map = this.make.tilemap({ key: 'classroom' });
+      const tileset = map.addTilesetImage('tile_map', 'tiles');
+      const backgroundLayer = map.createLayer("background", tileset, 0,0);
+      const groundLayer = map.createLayer("ground", tileset, 0,0);
+
+      this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
         color: '#ffffff',
       });
 
-
-      const map = this.make.tilemap({ key: 'classroom' });
-
-      const tileset = map.addTilesetImage('tile_map', 'tiles');
-     
-      const backgroundLayer = map.createLayer("background", tileset, 0,0);
-      const groundLayer = map.createLayer("ground", tileset, 0,0);
-
-      console.log( map.widthInPixels, map.heightInPixels);
       // 맵의 크기를 이미지의 크기로 조절
-      this.physics.world.setBounds(0, 0, 2* map.widthInPixels, 2 * map.heightInPixels);
-      this.cameras.main.setBounds(0, 0, 2 * map.widthInPixels, 2 * map.heightInPixels);
+      this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -81,19 +86,13 @@ export class GameScene extends Scene {
           position.x,
           position.y
         );
-    
         if (distance < 100) {
-          this.chatText.text += `Player ${playerId}: ${message}\n`;
-    
+          this.chatText.setText(this.chatText.text +  `Player ${playerId}: ${message}\n`);
           // Scroll to the bottom if there is a scroll
           this.chatText.setScrollFactor(0, 0);
         }
       });
-    
-
-      
-
-
+  
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = this.physics.add.image(player.x, player.y, 'santa');
         entity.setScale(1);
@@ -135,7 +134,6 @@ export class GameScene extends Scene {
 
     } catch (e) {
       console.error(e);
-      console.log("ddd");
     }
   }
 
@@ -195,7 +193,8 @@ export class GameScene extends Scene {
     }
 
     // type, data
-    this.room.send(0, {
+    // TODO: 0 -> input
+    this.room.send("input", {
       "input": this.inputPayload
     });
 

@@ -11,17 +11,17 @@ export class MyRoom extends Room<MyRoomState> {
     // handle player input
     this.onMessage("chat", (client, data) => {
       const player = this.state.players.get(client.sessionId);
-      player.inputQueue.push(data.input);
+      player.inputQueue.push(data.chat);
     
       // Broadcast the chat message to nearby clients
       this.broadcast("chat", {
         playerId: client.sessionId,
-        message: data.message,
+        message: data.chat.message,
         position: { x: player.x, y: player.y }
       });
     });
 
-    this.onMessage(0, (client, data) => {
+    this.onMessage("input", (client, data) => {
       const player = this.state.players.get(client.sessionId);
       player.inputQueue.push(data.input);
     });  
