@@ -1,7 +1,9 @@
 import config from "@colyseus/tools";
 import { monitor } from "@colyseus/monitor";
 import { playground } from "@colyseus/playground";
-
+import cors from "cors";
+const path = require('path');
+const express = require('express');
 /**
  * Import your Room files
  */
@@ -22,9 +24,30 @@ export default config({
          * Bind your custom express routes here:
          * Read more: https://expressjs.com/en/starter/basic-routing.html
          */
+
+        app.use(cors());
+        // {
+        //     //origin: 'https://allowed-domain.com', // 실제 허용할 도메인
+        //     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // 허용할 HTTP 메서드
+        //     allowedHeaders: 'Content-Type, Authorization, Access-Control-Allow-Origin', // 허용할 헤더
+        // }
+        
+        app.get('/assets/:imageName', (req, res) => {
+            const imageName = req.params.imageName;
+
+            const imagePath = path.join(__dirname, '../assets', imageName);
+            // 이미지를 스트림으로 읽어들임
+            const imageStream = require('fs').createReadStream(imagePath);
+            // Content-Type 설정
+            res.setHeader('Content-Type', 'image/png'); // 실제 이미지 타입에 따라 변경
+            // 이미지 스트림을 응답으로 전송
+            imageStream.pipe(res);
+         });
+
         app.get("/hello_world", (req, res) => {
             res.send("It's time to kick ass and chew bubblegum!");
         });
+
 
         /**
          * Use @colyseus/playground
