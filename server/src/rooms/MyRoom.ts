@@ -20,6 +20,11 @@ export class MyRoom extends Room<MyRoomState> {
       });
     });
 
+    this.onMessage(0, (client, data) => {
+      const player = this.state.players.get(client.sessionId);
+      player.inputQueue.push(data.input);
+    });  
+
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;

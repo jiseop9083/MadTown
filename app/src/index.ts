@@ -7,8 +7,11 @@ dotenv.config();
 export class GameScene extends Scene {
   preload() {
     // preload scene
-    this.load.image('santa', `${process.env.MOCK_HTTP_SERVER_URI}/assets/mountainUp.png`);
+    this.load.image('santa', `${process.env.MOCK_HTTP_SERVER_URI}/image/player-mountainUp.png`);
+    this.load.image('tiles', `${process.env.MOCK_HTTP_SERVER_URI}/image/tiles-tile_map.png`);
+    this.load.tilemapTiledJSON('classroom', `${process.env.MOCK_HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
+    
   }
 
   client = new Client(`${process.env.MOCK_SERVER_URI}`);
@@ -36,6 +39,7 @@ export class GameScene extends Scene {
 
     try {
       this.room = await this.client.joinOrCreate("my_room");
+      
 
       this.input.keyboard.on('keydown-ENTER', () => {
         const message = prompt("Enter your message:");
@@ -50,6 +54,19 @@ export class GameScene extends Scene {
         color: '#ffffff',
       });
 
+
+      const map = this.make.tilemap({ key: 'classroom' });
+
+      const tileset = map.addTilesetImage('tile_map', 'tiles');
+     
+      const backgroundLayer = map.createLayer("background", tileset, 0,0);
+      const groundLayer = map.createLayer("ground", tileset, 0,0);
+
+      console.log( map.widthInPixels, map.heightInPixels);
+      // 맵의 크기를 이미지의 크기로 조절
+      this.physics.world.setBounds(0, 0, 2* map.widthInPixels, 2 * map.heightInPixels);
+      this.cameras.main.setBounds(0, 0, 2 * map.widthInPixels, 2 * map.heightInPixels);
+
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
         const { playerId, message } = messageData;
@@ -60,49 +77,51 @@ export class GameScene extends Scene {
         this.chatText.setScrollFactor(0, 0);
       });
 
+      
+
+
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = this.physics.add.image(player.x, player.y, 'santa');
-      console.log(entity);
-      entity.setScale(1);
-
-      // const map = this.make.tilemap({key : "map", tileWidth: 32, tileHeight: 32});
-      // const tileset = map.addTilesetImage("tiles1", "tiles");
-      // const layer = map.createLayer("ground", tileset, 0, 0);
-      // const cactsLayer = map.createLayer('cactus1', tileset, 0,0);
+        entity.setScale(1);
     
-      // keep a reference of it on `playerEntities`
-      this.playerEntities[sessionId] = entity;
+        // keep a reference of it on `playerEntities`
+        this.playerEntities[sessionId] = entity;
 
-      if (sessionId === this.room.sessionId) {
-        // this is the current player!
-        // (we are going to treat it differently during the update loop)
-        this.currentPlayer = entity;
+        if (sessionId === this.room.sessionId) {
+          // this is the current player!
+          // (we are going to treat it differently during the update loop)
+          this.currentPlayer = entity;
 
-        // remoteRef is being used for debug only
-        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
-        this.remoteRef.setStrokeStyle(1, 0xff0000);
+          // remoteRef is being used for debug only
+          this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
+          this.remoteRef.setStrokeStyle(1, 0xff0000);
 
-        player.onChange(() => {
-            this.remoteRef.x = player.x;
-            this.remoteRef.y = player.y;
-            entity.setData('serverX', player.x);
-          entity.setData('serverY', player.y);
-        });
-      } else {
-          // all remote players are here!
-          // (same as before, we are going to interpolate remote players)
           player.onChange(() => {
+              this.remoteRef.x = player.x;
+              this.remoteRef.y = player.y;
               entity.setData('serverX', player.x);
               entity.setData('serverY', player.y);
           });
-      }
+        } else {
+            // all remote players are here!
+            // (same as before, we are going to interpolate remote players)
+            player.onChange(() => {
+                entity.setData('serverX', player.x);
+                entity.setData('serverY', player.y);
+            });
+        }
         // Alternative, listening to individual properties:
         //player.listen("x", (newX, prevX) => console.log(newX, prevX));
         //player.listen("y", (newY, prevY) => console.log(newY, prevY));
+
+     
     });
+
+    
 
     } catch (e) {
       console.error(e);
+      console.log("ddd");
     }
   }
 
@@ -186,8 +205,9 @@ export class GameScene extends Scene {
 // game config
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    
+    width: 576,
+    height: 640,
     backgroundColor: '#b6d53c',
     parent: 'phaser-example',
     physics: { default: "arcade" },
