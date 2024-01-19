@@ -3,7 +3,8 @@ import { monitor } from "@colyseus/monitor";
 import { playground } from "@colyseus/playground";
 import cors from "cors";
 const path = require('path');
-const express = require('express');
+const fs = require('fs');
+
 /**
  * Import your Room files
  */
@@ -32,16 +33,38 @@ export default config({
         //     allowedHeaders: 'Content-Type, Authorization, Access-Control-Allow-Origin', // 허용할 헤더
         // }
         
-        app.get('/assets/:imageName', (req, res) => {
+        app.get('/image/:imageName', (req, res) => {
+            
             const imageName = req.params.imageName;
-
-            const imagePath = path.join(__dirname, '../assets', imageName);
-            // 이미지를 스트림으로 읽어들임
+            const resultArray = imageName.split('-');
+            const joinedString = resultArray.join('/');
+            const imagePath = path.join(__dirname, '../assets', joinedString);
             const imageStream = require('fs').createReadStream(imagePath);
-            // Content-Type 설정
-            res.setHeader('Content-Type', 'image/png'); // 실제 이미지 타입에 따라 변경
-            // 이미지 스트림을 응답으로 전송
+            
+            res.setHeader('Content-Type', 'image/png'); 
             imageStream.pipe(res);
+         });
+
+         app.get('/json/:mapName', (req, res) => {
+            const mapName = req.params.mapName;
+            const resultArray = mapName.split('-');
+            const joinedString = resultArray.join('/');
+            const mapPath = path.join(__dirname, '../assets', joinedString);
+            fs.readFile(mapPath, 'utf8', (err, data) => {
+                if (err) {
+                    console.error('Error reading JSON file:', err);
+                    return;
+                }
+                try {
+                    const jsonData = JSON.parse(data);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(jsonData);
+                } catch (jsonErr) {
+                    res.status(500).send('Error parsing JSON');
+                }
+            });
+
+           
          });
 
         app.get("/hello_world", (req, res) => {
