@@ -3,6 +3,7 @@ import { Client, Room } from "colyseus.js";
 
 import { createCharacterAnims } from "./anims/CharacterAnims";
 import { Player } from "./characters/Player";
+import { PlayerState } from "./types/PlayerState";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -13,11 +14,16 @@ const SERVER_URI = process.env.MOCK_SERVER_URI;
 // custom scene class
 export class GameScene extends Scene {
   preload() {
-    // preload scene
+    // DOTO: merge spritesheet with similar thing to reduce loading time
+    // EX) idle + moveRight + moveLeft + and so on...
     this.load.image('santa', `${HTTP_SERVER_URI}/image/player-mountainUp.png`);
     //this.load.image('avatar1', `${HTTP_SERVER_URI}/image/player-character1_idle.png`);
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
-    this.load.spritesheet('avatar1', `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_idle', `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_right', `${HTTP_SERVER_URI}/image/player-character1_right.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_left', `${HTTP_SERVER_URI}/image/player-character1_left.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     
@@ -94,7 +100,7 @@ export class GameScene extends Scene {
       });
   
       this.room.state.players.onAdd((player, sessionId) => {
-        const entity = new Player(this, player.x, player.y, 'avatar1', sessionId, 1);
+        const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
         // keep a reference of it on `playerEntities`
         this.playerEntities[sessionId] = entity;
 
@@ -170,18 +176,27 @@ export class GameScene extends Scene {
     this.inputPayload.right = this.cursorKeys.right.isDown;
     this.inputPayload.up = this.cursorKeys.up.isDown;
     this.inputPayload.down = this.cursorKeys.down.isDown;
-
+    let isTap = false;
     if (this.inputPayload.left) {
+      this.currentPlayer.changeAnims(PlayerState.LEFT);
       this.currentPlayer.x -= velocity;
+      isTap = true;
     } else if (this.inputPayload.right) {
+      this.currentPlayer.changeAnims(PlayerState.RIGHT);
         this.currentPlayer.x += velocity;
+        isTap = true;
     }
     if (this.inputPayload.up) {
+      this.currentPlayer.changeAnims(PlayerState.UP);
         this.currentPlayer.y -= velocity;
+        isTap = true;
     } else if (this.inputPayload.down) {
+        this.currentPlayer.changeAnims(PlayerState.DOWN);
         this.currentPlayer.y += velocity;
+        isTap = true;
     }
-
+    if(!isTap)
+      this.currentPlayer.changeAnims(PlayerState.IDLE);
     // type, data
     // TODO: 0 -> input
     this.room.send("input", {
