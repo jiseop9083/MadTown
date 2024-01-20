@@ -3,8 +3,8 @@ import { Client, Room } from "colyseus.js";
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
-const SERVER_URI = process.env.SERVER_URI;
+const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
+const SERVER_URI = process.env.MOCK_SERVER_URI;
 
 // custom scene class
 export class GameScene extends Scene {

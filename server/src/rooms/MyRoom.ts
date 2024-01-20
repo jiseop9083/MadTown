@@ -1,25 +1,22 @@
 import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
+import { ChatHandler } from "./ChatHandler";
 
 export class MyRoom extends Room<MyRoomState> {
+  private chatHandler: ChatHandler;
+
   maxClients = 4;
   fixedTimeStep = 1000 / 60;
 
+  constructor(options: any) {
+    super(options);
+    this.chatHandler = new ChatHandler(this);
+  }
+  
   onCreate(options: any) {
     this.setState(new MyRoomState());
 
-    // handle player input
-    this.onMessage("chat", (client, data) => {
-      const player = this.state.players.get(client.sessionId);
-      player.inputQueue.push(data.chat);
-    
-      // Broadcast the chat message to nearby clients
-      this.broadcast("chat", {
-        playerId: client.sessionId,
-        message: data.chat.message,
-        position: { x: player.x, y: player.y }
-      });
-    });
+    this.onMessage("chat", (client, data) => this.chatHandler.handleChatMessage(client, data));
 
     this.onMessage("input", (client, data) => {
       const player = this.state.players.get(client.sessionId);
@@ -70,8 +67,8 @@ export class MyRoom extends Room<MyRoomState> {
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
 
-    const mapWidth = 800;
-    const mapHeight = 600;
+    const mapWidth = 576;
+    const mapHeight = 640;
 
     // create Player instance
     const player = new Player();
