@@ -1,20 +1,29 @@
 import { Scene } from "phaser";
 import { Client, Room } from "colyseus.js";
+
+import { createCharacterAnims } from "./anims/CharacterAnims";
+import { Player } from "./characters/Player";
+import { PlayerState } from "./types/PlayerState";
 const dotenv = require('dotenv');
 dotenv.config();
 
 const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
 const SERVER_URI = process.env.MOCK_SERVER_URI;
-this.chatText = this.add.text(0, 0, '', {
-  fontSize: '16px',
-  color: '#ffffff',
-});
+
+
 // custom scene class
 export class GameScene extends Scene {
   preload() {
-    // preload scene
+    // DOTO: merge spritesheet with similar thing to reduce loading time
+    // EX) idle + moveRight + moveLeft + and so on...
     this.load.image('santa', `${HTTP_SERVER_URI}/image/player-mountainUp.png`);
+    //this.load.image('avatar1', `${HTTP_SERVER_URI}/image/player-character1_idle.png`);
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
+    this.load.spritesheet('avatar_idle', `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_right', `${HTTP_SERVER_URI}/image/player-character1_right.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_left', `${HTTP_SERVER_URI}/image/player-character1_left.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     
@@ -45,7 +54,7 @@ export class GameScene extends Scene {
 
     try {
       this.room = await this.client.joinOrCreate("my_room");
-      
+      createCharacterAnims(this.anims);
 
       this.input.keyboard.on('keydown-ENTER', () => {
         const message = prompt("Enter your message:");
@@ -58,13 +67,18 @@ export class GameScene extends Scene {
         }
       });
 
-      
-
-
+      // load map
       const map = this.make.tilemap({ key: 'classroom' });
+
       const tileset = map.addTilesetImage('tile_map', 'tiles');
       const backgroundLayer = map.createLayer("background", tileset, 0,0);
       const groundLayer = map.createLayer("ground", tileset, 0,0);
+     
+      // groundLayer.setCollisionBetween(0, 4);
+      
+      
+
+
 
       this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
@@ -73,7 +87,6 @@ export class GameScene extends Scene {
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-      this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -92,22 +105,23 @@ export class GameScene extends Scene {
           this.chatText.setScrollFactor(0, 0);
         }
       });
-  
+
       this.room.state.players.onAdd((player, sessionId) => {
-        const entity = this.physics.add.image(player.x, player.y, 'santa');
-        entity.setScale(1);
-    
+        const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
+        // this.physics.add.collider(player, groundLayer, () => {console.log("hello")});
+        // groundLayer.map(object => {
+        //   // 각 객체에 대해 충돌 체크를 위한 물리 바디를 추가
+        //   console.log(object.x, object.y);
+        // });
+        // this.physics.add.collider(entity.playerContainer, groundLayer);
+        
         // keep a reference of it on `playerEntities`
-        this.playerEntities[sessionId] = entity;
 
         if (sessionId === this.room.sessionId) {
-          // this is the current player!
-          // (we are going to treat it differently during the update loop)
           this.currentPlayer = entity;
 
-          // remoteRef is being used for debug only
-          this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
-          this.remoteRef.setStrokeStyle(1, 0xff0000);
+          // this is being used for debug only
+          entity.debugMode(true);
 
           player.onChange(() => {
               this.remoteRef.x = player.x;
@@ -123,15 +137,9 @@ export class GameScene extends Scene {
                 entity.setData('serverY', player.y);
             });
         }
-        // Alternative, listening to individual properties:
-        //player.listen("x", (newX, prevX) => console.log(newX, prevX));
-        //player.listen("y", (newY, prevY) => console.log(newY, prevY));
-
-     
-    });
-
-    
-
+      });
+      
+      
     } catch (e) {
       console.error(e);
     }
@@ -180,18 +188,27 @@ export class GameScene extends Scene {
     this.inputPayload.right = this.cursorKeys.right.isDown;
     this.inputPayload.up = this.cursorKeys.up.isDown;
     this.inputPayload.down = this.cursorKeys.down.isDown;
-
+    let isTap = false;
     if (this.inputPayload.left) {
+      this.currentPlayer.changeAnims(PlayerState.LEFT);
       this.currentPlayer.x -= velocity;
+      isTap = true;
     } else if (this.inputPayload.right) {
+      this.currentPlayer.changeAnims(PlayerState.RIGHT);
         this.currentPlayer.x += velocity;
+        isTap = true;
     }
     if (this.inputPayload.up) {
+      this.currentPlayer.changeAnims(PlayerState.UP);
         this.currentPlayer.y -= velocity;
+        isTap = true;
     } else if (this.inputPayload.down) {
+        this.currentPlayer.changeAnims(PlayerState.DOWN);
         this.currentPlayer.y += velocity;
+        isTap = true;
     }
-
+    if(!isTap)
+      this.currentPlayer.changeAnims(PlayerState.IDLE);
     // type, data
     // TODO: 0 -> input
     this.room.send("input", {
