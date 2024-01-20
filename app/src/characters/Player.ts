@@ -7,6 +7,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     playerId: string;
     playerTexture: string;
     playerState = PlayerState.IDLE;
+    roomName: string;
     // readyToConnect = false;
     // videoConnected = false;
     playerName: Phaser.GameObjects.Text;
@@ -33,7 +34,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.play(`${this.playerTexture}_idle`);
         this.setScale(size);
         this.playerContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000);
-        
+        this.roomName = "";
         
         this.scene.physics.world.enable(this.playerContainer);
         // const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body;
