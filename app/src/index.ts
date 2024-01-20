@@ -49,11 +49,14 @@ export class GameScene extends Scene {
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   chatText: Phaser.GameObjects.Text;
 
+  videoButton: Phaser.GameObjects.Text;
+
   async create() {
     console.log("Joining room...");
 
     try {
       this.room = await this.client.joinOrCreate("my_room");
+
       createCharacterAnims(this.anims);
 
       this.input.keyboard.on('keydown-ENTER', () => {
@@ -67,7 +70,6 @@ export class GameScene extends Scene {
         }
       });
 
-      // load map
       const map = this.make.tilemap({ key: 'classroom' });
 
       const tileset = map.addTilesetImage('tile_map', 'tiles');
@@ -84,6 +86,20 @@ export class GameScene extends Scene {
         fontSize: '16px',
         color: '#ffffff',
       });
+
+      this.videoButton = this.add.text(10, 80, 'Start Video', {
+        fontSize: '16px',
+        color: '#000000',
+        backgroundColor: '#3498db',
+        padding: { x: 10, y: 5 },
+      });
+
+      this.videoButton.setInteractive();
+      this.videoButton.on('pointerdown', () => {
+        this.startVideoConference();
+      });
+
+      console.log("video button created");
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
@@ -137,12 +153,38 @@ export class GameScene extends Scene {
                 entity.setData('serverY', player.y);
             });
         }
+
       });
-      
       
     } catch (e) {
       console.error(e);
     }
+  }
+
+  startVideoConference() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        // 비디오 요소를 생성하고 스트림을 연결
+        const videoElement = document.createElement('video');
+        videoElement.srcObject = stream;
+        videoElement.autoplay = true;
+
+        document.body.appendChild(videoElement);
+
+        const centerX = this.cameras.main.centerX;
+        const centerY = this.cameras.main.centerY;
+        const videoWidth = 200;
+        const videoHeight = 150;
+
+        videoElement.style.position = 'absolute';
+        videoElement.style.left = `${centerX - videoWidth / 2}px`;
+        videoElement.style.top = `${centerY - videoHeight}px`;
+        videoElement.style.width = `${videoWidth}px`;
+        videoElement.style.height = `${videoHeight}px`;
+    })
+    .catch((error) => {
+      console.error('Error accessing webcam and/or microphone:', error);
+    })
   }
 
   
