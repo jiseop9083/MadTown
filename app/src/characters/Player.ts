@@ -15,25 +15,32 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // private playerDialogBubble: Phaser.GameObjects.Container;
   
     constructor(
-      scene: Phaser.Scene,
-      x: number,
-      y: number,
-      texture: string, // player animation sprite name
-      id: string,
-      size: number = 1,
-      frame?: string | number
+        scene: Phaser.Scene,
+        x: number,
+        y: number,
+        texture: string, // player animation sprite name
+        id: string,
+        size: number = 1,
+        frame?: string | number
     ) {
-      super(scene, x, y, texture, frame);
-      this.scene = scene;
-      scene.add.existing(this);
-      scene.physics.add.existing(this);
-      this.playerId = id;
-      this.playerTexture = texture;
-      // this.setDepth(this.y);
-      this.anims.play(`${this.playerTexture}_idle`);
-      this.setScale(size);
-      this.playerContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000);
-    }
+        super(scene, x, y, texture, frame);
+        this.scene = scene;
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+        this.playerId = id;
+        this.playerTexture = texture;
+        // this.setDepth(this.y);
+        this.anims.play(`${this.playerTexture}_idle`);
+        this.setScale(size);
+        this.playerContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000);
+        
+        
+        this.scene.physics.world.enable(this.playerContainer);
+        // const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body;
+        // const collisionScale = [0.8, 0.8];
+        // playContainerBody.setSize(this.width * collisionScale[0], this.height * collisionScale[1])//.setOffset(-8, this.height * (1 - collisionScale[1]) + 6);
+    };
+        
 
     debugMode = (mode : boolean) => {
         if(mode){
@@ -75,8 +82,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                     this.playerState = PlayerState.LEFT;
                 }
                 break;
-                
-            
             default:
                 if(this.playerState != PlayerState.IDLE){
                     this.anims.play(`${this.playerTexture}_idle`);
@@ -85,5 +90,4 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 break;
         }
     }
-
-  }
+}

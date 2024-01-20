@@ -27,7 +27,6 @@ export class GameScene extends Scene {
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     
-    
   }
 
   client = new Client(`${SERVER_URI}`);
@@ -68,10 +67,18 @@ export class GameScene extends Scene {
         }
       });
 
+      // load map
       const map = this.make.tilemap({ key: 'classroom' });
+
       const tileset = map.addTilesetImage('tile_map', 'tiles');
       const backgroundLayer = map.createLayer("background", tileset, 0,0);
       const groundLayer = map.createLayer("ground", tileset, 0,0);
+     
+      // groundLayer.setCollisionBetween(0, 4);
+      
+      
+
+
 
       this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
@@ -98,11 +105,17 @@ export class GameScene extends Scene {
           this.chatText.setScrollFactor(0, 0);
         }
       });
-  
+
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
+        // this.physics.add.collider(player, groundLayer, () => {console.log("hello")});
+        // groundLayer.map(object => {
+        //   // 각 객체에 대해 충돌 체크를 위한 물리 바디를 추가
+        //   console.log(object.x, object.y);
+        // });
+        // this.physics.add.collider(entity.playerContainer, groundLayer);
+        
         // keep a reference of it on `playerEntities`
-        this.playerEntities[sessionId] = entity;
 
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
@@ -124,10 +137,9 @@ export class GameScene extends Scene {
                 entity.setData('serverY', player.y);
             });
         }
-    });
-
-    
-
+      });
+      
+      
     } catch (e) {
       console.error(e);
     }
