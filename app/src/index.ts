@@ -3,12 +3,9 @@ import { Client, Room } from "colyseus.js";
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
-const SERVER_URI = process.env.MOCK_SERVER_URI;
-this.chatText = this.add.text(0, 0, '', {
-  fontSize: '16px',
-  color: '#ffffff',
-});
+const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
+const SERVER_URI = process.env.SERVER_URI;
+
 // custom scene class
 export class GameScene extends Scene {
   preload() {
