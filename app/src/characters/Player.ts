@@ -27,7 +27,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture, frame);
         this.scene = scene;
         scene.add.existing(this);
-        scene.physics.add.existing(this);
+       // scene.physics.add.existing(this);
         this.playerId = id;
         this.playerTexture = texture;
         // this.setDepth(this.y);
