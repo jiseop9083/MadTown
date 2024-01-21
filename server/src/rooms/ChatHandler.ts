@@ -10,16 +10,11 @@ export class ChatHandler {
   handleChatMessage(client: any, data: any) {
     const player = this.room.state.players.get(client.sessionId);
 
-    if (player) {
-      player.inputQueue.push(data.chat);
-
-      // Broadcast the chat message to nearby clients
-      this.room.broadcast("chat", {
-        playerId: client.sessionId,
-        message: data.chat.message,
-        position: { x: player.x, y: player.y }
-      });
-    }
+    this.room.broadcast("chat", {
+      playerId: client.sessionId,
+      message: data.chat.message,
+      position: { x: player.x, y: player.y }
+    });
   }
 
   handlePlayerInput(client: any, data: any) {
