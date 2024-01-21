@@ -13,6 +13,7 @@ const SERVER_URI = process.env.MOCK_SERVER_URI;
 
 // custom scene class
 export class GameScene extends Scene {
+  playerGroup: Phaser.Physics.Arcade.Group;
   preload() {
     // DOTO: merge spritesheet with similar thing to reduce loading time
     // EX) idle + moveRight + moveLeft + and so on...
@@ -35,7 +36,7 @@ export class GameScene extends Scene {
   room: Room;
 
   playerEntities: {[sessionId: string]: any} = {};
-
+  
   inputPayload = {
       left: false,
       right: false,
@@ -43,7 +44,8 @@ export class GameScene extends Scene {
       down: false,
   };
 
-  currentPlayer: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+  currentPlayer: Player
+  // currentPlayer: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
   remoteRef: Phaser.GameObjects.Rectangle;
 
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -71,14 +73,9 @@ export class GameScene extends Scene {
       });
 
       const map = this.make.tilemap({ key: 'classroom' });
-
       const tileset = map.addTilesetImage('tile_map', 'tiles');
-      const backgroundLayer = map.createLayer("background", tileset, 0,0);
-      const groundLayer = map.createLayer("ground", tileset, 0,0);
-     
-      // groundLayer.setCollisionBetween(0, 4);
-      
-      
+      const backgroundLayer = map.createLayer("background", tileset, 0, 0);
+      const groundLayer = map.createLayer("ground", tileset, 0, 0);
 
 
 
@@ -122,8 +119,35 @@ export class GameScene extends Scene {
         }
       });
 
+      this.playerGroup = this.physics.add.group();
+      this.physics.world.enable(this.playerGroup);
+
+      this.physics.add.collider(this.playerGroup, this.playerGroup, (player1, player2) => {
+        const overlapX = player1.x - player2.x;
+        const overlapY = player1.y - player2.y;
+    
+        // 겹침을 방지하기 위한 이동값 설정
+        const moveDistance = 0.1;
+    
+        if (overlapX > 0) {
+            player1.x += moveDistance;
+        } else {
+            player1.x -= moveDistance;
+        }
+    
+        if (overlapY > 0) {
+            player1.y += moveDistance;
+        } else {
+            player1.y -= moveDistance;
+        }
+    });
+    
+
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
+        this.playerGroup.add(entity);
+
+        entity.setCollideWorldBounds(true);
         // this.physics.add.collider(player, groundLayer, () => {console.log("hello")});
         // groundLayer.map(object => {
         //   // 각 객체에 대해 충돌 체크를 위한 물리 바디를 추가
@@ -216,6 +240,8 @@ export class GameScene extends Scene {
     while (this.elapsedTime >= this.fixedTimeStep) {
         this.elapsedTime -= this.fixedTimeStep;
         this.fixedTick(time, this.fixedTimeStep);
+
+        this.physics.world.collide(this.playerGroup);
     }
   }
 
