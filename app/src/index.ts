@@ -8,8 +8,8 @@ import { startVideoConference } from "./video/WebRTC";
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
-const SERVER_URI = process.env.MOCK_SERVER_URI;
+const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
+const SERVER_URI = process.env.SERVER_URI;
 
 
 // custom scene class
@@ -296,3 +296,7 @@ const config: Phaser.Types.Core.GameConfig = {
 
 // instantiate the game
 const game = new Phaser.Game(config);
+
+export function handleButtonClick() {
+    throw new Error('Function not implemented.');
+}
