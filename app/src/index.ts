@@ -4,6 +4,7 @@ import { Client, Room } from "colyseus.js";
 import { createCharacterAnims } from "./anims/CharacterAnims";
 import { Player } from "./characters/Player";
 import { PlayerState } from "./types/PlayerState";
+import { startVideoConference } from "./video/WebRTC";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -43,13 +44,15 @@ export class GameScene extends Scene {
       down: false,
   };
 
-  currentPlayer: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+  currentPlayer: Player;
   remoteRef: Phaser.GameObjects.Rectangle;
 
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   chatText: Phaser.GameObjects.Text;
 
   videoButton: Phaser.GameObjects.Text;
+
+  
 
   async create() {
     console.log("Joining room...");
@@ -70,6 +73,8 @@ export class GameScene extends Scene {
         }
       });
 
+      
+
       const map = this.make.tilemap({ key: 'classroom' });
 
       const tileset = map.addTilesetImage('tile_map', 'tiles');
@@ -77,10 +82,6 @@ export class GameScene extends Scene {
       const groundLayer = map.createLayer("ground", tileset, 0,0);
      
       // groundLayer.setCollisionBetween(0, 4);
-      
-      
-
-
 
       this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
@@ -96,13 +97,19 @@ export class GameScene extends Scene {
 
       this.videoButton.setInteractive();
       this.videoButton.on('pointerdown', () => {
-        this.startVideoConference();
+        startVideoConference(this, this.currentPlayer);
+        console.log(this.currentPlayer.playerId);
       });
 
-      console.log("video button created");
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      
+      
+
+      // video
+      
+
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -121,6 +128,9 @@ export class GameScene extends Scene {
           this.chatText.setScrollFactor(0, 0);
         }
       });
+
+      
+
 
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
@@ -160,34 +170,9 @@ export class GameScene extends Scene {
       console.error(e);
     }
   }
-
-  startVideoConference() {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        // 비디오 요소를 생성하고 스트림을 연결
-        const videoElement = document.createElement('video');
-        videoElement.srcObject = stream;
-        videoElement.autoplay = true;
-
-        document.body.appendChild(videoElement);
-
-        const centerX = this.cameras.main.centerX;
-        const centerY = this.cameras.main.centerY;
-        const videoWidth = 200;
-        const videoHeight = 150;
-
-        videoElement.style.position = 'absolute';
-        videoElement.style.left = `${centerX - videoWidth / 2}px`;
-        videoElement.style.top = `${centerY - videoHeight}px`;
-        videoElement.style.width = `${videoWidth}px`;
-        videoElement.style.height = `${videoHeight}px`;
-    })
-    .catch((error) => {
-      console.error('Error accessing webcam and/or microphone:', error);
-    })
-  }
-
   
+
+ 
 
   onLeave(player){
       this.room.state.players.onRemove((player, sessionId) => {

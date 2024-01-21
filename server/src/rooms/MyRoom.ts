@@ -2,9 +2,13 @@ import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
 import { ChatHandler } from "./ChatHandler";
 
+
 export class MyRoom extends Room<MyRoomState> {
   private chatHandler: ChatHandler;
 
+  // TODO: move to DB
+  // roomName, creatorID
+  rooms : Map<string, string> = new Map();
   maxClients = 4;
   fixedTimeStep = 1000 / 60;
 
@@ -22,6 +26,56 @@ export class MyRoom extends Room<MyRoomState> {
       const player = this.state.players.get(client.sessionId);
       player.inputQueue.push(data.input);
     });  
+
+    this.onMessage("join_room", (client, data) => {
+      // let id;
+ 
+      // const name = data.roomName;
+      // if(this.rooms.has(name)){
+      //   id = this.rooms.get(name);
+      // } else {
+      //   this.rooms.set(name, client.sessionId);
+      //   id = client.sessionId;
+      // }
+
+      
+      this.broadcast("join_room", {
+        playerId: client.sessionId,
+        roomName: data.roomName
+      });
+      
+
+    });  
+
+    this.onMessage("offer", (client, data) => {
+      
+      // DOTO: send message to clients in the room
+      this.broadcast("offer", {
+        playerId: client.sessionId,
+        roomName: data.roomName,
+        offer: data.offer,
+      });
+    });  
+
+    this.onMessage("answer", (client, data) => {
+      // DOTO: send message to clients in the room
+      this.broadcast("answer", {
+        playerId: client.sessionId,
+        roomName: data.roomName,
+        answer: data.answer,
+      });
+    });  
+
+    this.onMessage("ice", (client, data) => {
+      this.broadcast("ice", {
+        playerId: client.sessionId,
+        roomName: data.roomName,
+        ice: data.ice,
+      });
+    });  
+
+
+
 
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {
