@@ -75,15 +75,13 @@ export class GameScene extends Scene {
         }
       });
 
-      
-
       const map = this.make.tilemap({ key: 'classroom' });
       const tileset = map.addTilesetImage('tile_map', 'tiles');
       const backgroundLayer = map.createLayer("background", tileset, 0,0);
       const groundLayer = map.createLayer("ground", tileset, 0,0);
      
       // groundLayer.setCollisionBetween(0, 4);
-
+      // this.physics.world.enable(groundLayer);
       this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
         color: '#ffffff',
@@ -99,16 +97,12 @@ export class GameScene extends Scene {
       this.videoButton.setInteractive();
       this.videoButton.on('pointerdown', () => {
         startVideoConference(this, this.currentPlayer);
-        console.log(this.currentPlayer.playerId);
       });
 
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-      
-      
-
-      // video
+    
       
 
 
@@ -156,20 +150,11 @@ export class GameScene extends Scene {
       this.room.state.players.onAdd((player, sessionId) => {
         const entity = new Player(this, player.x, player.y, 'avatar', sessionId, 1);
         this.playerGroup.add(entity);
-
+        this.playerEntities[sessionId] = entity;
         entity.setCollideWorldBounds(true);
-        // this.physics.add.collider(player, groundLayer, () => {console.log("hello")});
-        // groundLayer.map(object => {
-        //   // 각 객체에 대해 충돌 체크를 위한 물리 바디를 추가
-        //   console.log(object.x, object.y);
-        // });
-        // this.physics.add.collider(entity.playerContainer, groundLayer);
-        
-        // keep a reference of it on `playerEntities`
 
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
-
           // this is being used for debug only
           entity.debugMode(true);
 
@@ -182,9 +167,10 @@ export class GameScene extends Scene {
         } else {
             // all remote players are here!
             // (same as before, we are going to interpolate remote players)
+           
             player.onChange(() => {
                 entity.setData('serverX', player.x);
-                entity.setData('serverY', player.y);
+                entity.setData('serverY', player.y)
             });
         }
 
@@ -252,7 +238,7 @@ export class GameScene extends Scene {
         isTap = true;
     }
     if (this.inputPayload.up) {
-      this.currentPlayer.changeAnims(PlayerState.UP);
+        this.currentPlayer.changeAnims(PlayerState.UP);
         this.currentPlayer.y -= velocity;
         isTap = true;
     } else if (this.inputPayload.down) {
@@ -267,19 +253,30 @@ export class GameScene extends Scene {
     this.room.send("input", {
       "input": this.inputPayload
     });
-
     for (let sessionId in this.playerEntities) {
       // do not interpolate the current player
       if (sessionId === this.room.sessionId) {
         continue;
-    }
-
+      }
       // interpolate all player entities
       const entity = this.playerEntities[sessionId];
       const { serverX, serverY } = entity.data.values;
-
-      entity.x = Phaser.Math.Linear(entity.x, serverX, 0.2);
-      entity.y = Phaser.Math.Linear(entity.y, serverY, 0.2);
+      const dx = serverX - entity.x;
+      const dy = serverY - entity.y;
+      console.log(dx, dy);
+      if(dx > 0){
+        entity.changeAnims(PlayerState.RIGHT);
+      } else if(dx < 0){
+        entity.changeAnims(PlayerState.LEFT);
+      } else if(dy > 0){
+        entity.changeAnims(PlayerState.DOWN);
+      } else if(dy < 0){
+        entity.changeAnims(PlayerState.UP);
+      } else{
+        entity.changeAnims(PlayerState.IDLE);
+      }
+      entity.x = Phaser.Math.Linear(entity.x, serverX, 0.8);
+      entity.y = Phaser.Math.Linear(entity.y, serverY, 0.8);
     }
     //
   }
