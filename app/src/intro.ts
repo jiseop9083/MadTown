@@ -16,7 +16,7 @@ const clouds = [
 let currentIndex = 0;
 
 
-const createIntro = () => {
+export const createIntro = () => {
     const maindiv = tagManager.createDiv({
         parent: document.body,
         styles: {
@@ -123,7 +123,7 @@ const createIntro = () => {
         },
         hoverStyles: { 'cursor': 'pointer', 'background-color': 'blue' },
         onClick: () => {
-            import('./game').then((indexModule) => {
+            import('./Page/Game').then((indexModule) => {
                 tagManager.setVisible(maindiv, false);
                 window['currentIndex'] = currentIndex;
 

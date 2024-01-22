@@ -14,7 +14,7 @@ export const createBlackBoard = (scene: Scene) => {
         styles: {'background-color': 'lightblue',
                 'display': 'flex', 
                 'align-items': 'center',
-                'justify-content': 'center'
+                'justify-content': 'space-around'
             }
     });
 
@@ -35,20 +35,73 @@ export const createBlackBoard = (scene: Scene) => {
 
     const selectorDiv = tagManager.createDiv({
         parent: maindiv,
-        
         styles: {
             'display': 'flex',
             'flex-direction': 'column',
+            'margin': '10px',
         }
+    });
+
+    const whiteButton = tagManager.createButton({
+        parent: selectorDiv,
+        text: '흰색 분필',
+        styles: {
+            'border-radius': '10px',
+            'background-color': 'lightgreen',
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
+        },
+        hoverStyles: {
+            'cursor': 'pointer',
+            'background-color': 'green',
+        },
+        onClick: () => ctx.strokeStyle = "white",
+    });
+
+    const yellowButton = tagManager.createButton({
+        parent: selectorDiv,
+        text: '노랑 분필',
+        styles: {
+            'border-radius': '10px',
+            'background-color': 'lightgreen',
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
+        },
+        hoverStyles: {
+            'cursor': 'pointer',
+            'background-color': 'green',
+        },
+        onClick: () => ctx.strokeStyle = "yellow",
+    });
+
+    const redButton = tagManager.createButton({
+        parent: selectorDiv,
+        text: '빨강 분필',
+        styles: {
+            'border-radius': '10px',
+            'background-color': 'lightgreen',
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
+        },
+        hoverStyles: {
+            'cursor': 'pointer',
+            'background-color': 'green',
+        },
+        onClick: () => ctx.strokeStyle = "red",
     });
 
     const clearButton = tagManager.createButton({
         parent: selectorDiv,
-        width: 100,
         text: '칠판 정리',
         styles: {
             'border-radius': '10px',
             'background-color': 'lightgreen',
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
         },
         hoverStyles: {
             'cursor': 'pointer',
@@ -65,17 +118,17 @@ export const createBlackBoard = (scene: Scene) => {
     backgroundImage.src = require('../../assets/blackboard.png');
     ctx.lineWidth = 1;
     ctx.fillStyle = "green";
+    ctx.strokeStyle = "white";
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     backgroundImage.onload = () =>  {
         ctx.drawImage(backgroundImage, -CANVAS_WIDTH *0.016, -CANVAS_HEIGHT *0.016, CANVAS_WIDTH * 1.032, CANVAS_HEIGHT  * 1.032);
     };
-    ctx.strokeStyle = "white";
 
     const onMouseMove = (event) => {
         const x = event.offsetX;
         const y = event.offsetY;
         if(x < CANVAS_WIDTH * 0.05 || x > CANVAS_WIDTH * 0.95 || 
-            y < CANVAS_HEIGHT * 0.07 || y > CANVAS_HEIGHT * 0.93){
+            y < CANVAS_HEIGHT * 0.07 || y > CANVAS_HEIGHT * 0.87){
                 stopDrawing();
                 return;
             }
@@ -102,9 +155,10 @@ export const createBlackBoard = (scene: Scene) => {
         ctx.fillStyle = "green";
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         ctx.drawImage(backgroundImage, -CANVAS_WIDTH *0.016, -CANVAS_HEIGHT *0.016, CANVAS_WIDTH * 1.032, CANVAS_HEIGHT  * 1.032);
-        //ctx.strokeStyle = "white";
         saveBoard();
     };
+
+
 
     const saveBoard = () => {
         const doodle = mainBoard.toDataURL("image/png");
