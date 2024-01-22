@@ -1,11 +1,13 @@
 import Phaser from 'phaser'
 
+declare var currentIndex: number;
+
 export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) => {
     const animsFrameRate = 15
   
     anims.create({
-      key: 'avatar_idle',
-      frames: anims.generateFrameNames('avatar_idle', {
+      key: `avatar${currentIndex+1}_idle`,
+      frames: anims.generateFrameNames(`avatar${currentIndex+1}_idle`, {
         start: 0,
         end: 1,
       }),
@@ -14,8 +16,8 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
     });
 
     anims.create({
-        key: 'avatar_front',
-        frames: anims.generateFrameNames('avatar_front', {
+        key: `avatar${currentIndex+1}_front`,
+        frames: anims.generateFrameNames(`avatar${currentIndex+1}_front`, {
           start: 0,
           end: 3,
         }),
@@ -24,8 +26,8 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
       });
 
     anims.create({
-        key: 'avatar_back',
-        frames: anims.generateFrameNames('avatar_back', {
+        key: `avatar${currentIndex+1}_back`,
+        frames: anims.generateFrameNames(`avatar${currentIndex+1}_back`, {
           start: 0,
           end: 3,
         }),
@@ -35,8 +37,8 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
 
 
     anims.create({
-        key: 'avatar_left',
-        frames: anims.generateFrameNames('avatar_left', {
+        key: `avatar${currentIndex+1}_left`,
+        frames: anims.generateFrameNames(`avatar${currentIndex+1}_left`, {
             start: 0,
             end: 3,
         }),
@@ -45,8 +47,8 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
     });
 
     anims.create({
-        key: 'avatar_right',
-        frames: anims.generateFrameNames('avatar_right', {
+        key: `avatar${currentIndex}_right`,
+        frames: anims.generateFrameNames(`avatar${currentIndex+1}_right`, {
             start: 0,
             end: 3,
         }),
