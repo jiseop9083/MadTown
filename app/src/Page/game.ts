@@ -37,9 +37,16 @@ export class GameScene extends Scene {
 
     this.load.spritesheet('avatar2_idle', `${HTTP_SERVER_URI}/image/player-character2_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar2_front', `${HTTP_SERVER_URI}/image/player-character2_front.png`, { frameWidth: 32, frameHeight: 32 });
-    this.load.spritesheet('avatar2_back', `${HTTP_SERVER_URI}/image/player-character2_back.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
-    this.load.spritesheet('avatar2_right', `${HTTP_SERVER_URI}/image/player-character2_right.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
-    this.load.spritesheet('avatar2_left', `${HTTP_SERVER_URI}/image/player-character2_left.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
+    this.load.spritesheet('avatar2_back', `${HTTP_SERVER_URI}/image/player-character2_back.png`, { frameWidth: 32, frameHeight: 32 }); 
+    this.load.spritesheet('avatar2_right', `${HTTP_SERVER_URI}/image/player-character2_right.png`, { frameWidth: 32, frameHeight: 32 }); 
+    this.load.spritesheet('avatar2_left', `${HTTP_SERVER_URI}/image/player-character2_left.png`, { frameWidth: 32, frameHeight: 32 }); 
+
+    
+    this.load.spritesheet('avatar3_idle', `${HTTP_SERVER_URI}/image/player-character3_idle.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar3_front', `${HTTP_SERVER_URI}/image/player-character3_front.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar3_back', `${HTTP_SERVER_URI}/image/player-character3_back.png`, { frameWidth: 32, frameHeight: 32 }); 
+    this.load.spritesheet('avatar3_right', `${HTTP_SERVER_URI}/image/player-character3_right.png`, { frameWidth: 32, frameHeight: 32 }); 
+    this.load.spritesheet('avatar3_left', `${HTTP_SERVER_URI}/image/player-character3_left.png`, { frameWidth: 32, frameHeight: 32 }); 
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     

@@ -108,4 +108,55 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
         repeat: -1,
         frameRate: animsFrameRate * 0.4,
     });
+
+    anims.create({
+      key: `avatar3_idle`,
+      frames: anims.generateFrameNames(`avatar3_idle`, {
+        start: 0,
+        end: 1,
+      }),
+      repeat: -1,
+      frameRate: animsFrameRate * 0.3,
+    });
+
+    anims.create({
+        key: `avatar3_front`,
+        frames: anims.generateFrameNames(`avatar3_front`, {
+          start: 0,
+          end: 3,
+        }),
+        repeat: -1,
+        frameRate: animsFrameRate * 0.4,
+      });
+
+    anims.create({
+        key: `avatar3_back`,
+        frames: anims.generateFrameNames(`avatar3_back`, {
+          start: 0,
+          end: 3,
+        }),
+        repeat: -1,
+        frameRate: animsFrameRate * 0.4,
+      });
+
+
+    anims.create({
+        key: `avatar3_left`,
+        frames: anims.generateFrameNames(`avatar3_left`, {
+            start: 0,
+            end: 3,
+        }),
+        repeat: -1,
+        frameRate: animsFrameRate * 0.4,
+    });
+
+    anims.create({
+        key: `avatar3_right`,
+        frames: anims.generateFrameNames(`avatar3_right`, {
+            start: 0,
+            end: 3,
+        }),
+        repeat: -1,
+        frameRate: animsFrameRate * 0.4,
+    });
 }
