@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     createIntro();
 });
 
+const characters = [
+    { name: 'character1', src: require("../assets/characters/character1.png") },
+    { name: 'character2', src: require("../assets/characters/character2.png") }
+];
+
+let currentIndex = 0;
 
 const createIntro = () => {
     const maindiv = tagManager.createDiv({parent: document.body,
@@ -17,12 +23,37 @@ const createIntro = () => {
     const imageContainer = tagManager.createDiv({parent: maindiv,
 
         });
-    const CharacterImg = tagManager.createImage({parent: imageContainer,
+    const characterImg = tagManager.createImage({parent: imageContainer,
         width: 100, 
         height: 100, 
-        src: './assets/characters/character1.png',
-        alt: 'character1',
+        src: characters[currentIndex].src,
+        alt: characters[currentIndex].name,
     });
+
+    const leftButton = tagManager.createButton({
+        parent: maindiv,
+        width: 50,
+        height: 30,
+        text: '<',
+        onClick: () => {
+            currentIndex = (currentIndex - 1 + characters.length) % characters.length;
+            characterImg.src = characters[currentIndex].src;
+            characterImg.alt = characters[currentIndex].name;
+        }
+    });
+
+    const rightButton = tagManager.createButton({
+        parent: maindiv,
+        width: 50,
+        height: 30,
+        text: '>',
+        onClick: () => {
+            currentIndex = (currentIndex + 1) % characters.length;
+            characterImg.src = characters[currentIndex].src;
+            characterImg.alt = characters[currentIndex].name;
+        }
+    });
+
     const button = tagManager.createButton({parent: maindiv,
         width: 100, 
         height: 100, 
@@ -31,7 +62,6 @@ const createIntro = () => {
                 'border-radius': '10px'},
         hoverStyles: {'cursor': 'pointer', 'background-color': 'blue'},
         onClick: () => {
-            // 버튼이 클릭되면 index.ts를 동적으로 로드
             import('./game').then((indexModule) => {
                 maindiv.style.display = 'none';
                 indexModule.createGame();
