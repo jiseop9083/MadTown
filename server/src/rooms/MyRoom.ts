@@ -137,6 +137,7 @@ export class MyRoom extends Room<MyRoomState> {
     // place Player at a random position
     player.x = (Math.random() * mapWidth);
     player.y = (Math.random() * mapHeight);
+    player.texture = options.playerTexture;
 
     // place player in the map of players by its sessionId
     // (client.sessionId is unique per connection!)

@@ -31,7 +31,7 @@ export const createIntro = () => {
         document.body.style.backgroundImage = `url(${background.src})`;
         document.body.style.backgroundSize = 'cover';
     };
-
+  
     const maindiv = tagManager.createDiv({
         parent: document.body,
         styles: {
@@ -120,8 +120,9 @@ export const createIntro = () => {
             'background-color': '#F9F871'
         },
         onClick: () => {
-            import('./game').then((indexModule) => {
-                tagManager.setVisible(popupContainer, false);
+
+            import('./Page/Game').then((indexModule) => {
+                tagManager.setVisible(maindiv, false);
                 window['currentIndex'] = currentIndex;
 
                 indexModule.createGame();
