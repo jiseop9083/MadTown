@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerState } from '../types/PlayerState';
 
-
+declare var currentIndex: number;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     playerId: string;
