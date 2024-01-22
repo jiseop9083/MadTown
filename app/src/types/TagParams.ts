@@ -11,5 +11,10 @@ export type TagParams = {
     hoverStyles?: any,
     isVisible?: boolean,
     onClick?: () => void,
+    // video
+    srcObject?: any,
+    autoplay?: boolean,
+    playsInline?: boolean
 
 };
+

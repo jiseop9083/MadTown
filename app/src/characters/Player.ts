@@ -8,8 +8,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     playerTexture: string;
     playerState = PlayerState.IDLE;
     roomName: string;
-    // readyToConnect = false;
-    // videoConnected = false;
     playerName: Phaser.GameObjects.Text;
     playerContainer: Phaser.GameObjects.Container;
     scene: Phaser.Scene;

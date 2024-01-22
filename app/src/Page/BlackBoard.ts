@@ -2,23 +2,36 @@ import { Scene } from 'phaser';
 import { TagManager } from '../util/TagManager';
 
 const tagManager = TagManager.getInstance();
+let mainContainer: HTMLDivElement;
+let isLoaded = false;
 
-
-export const createBlackBoard = (scene: Scene) => {
+export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
+    console.log(scene);
     // instance
     const CANVAS_WIDTH = 700;
     const CANVAS_HEIGHT = 500;
     let isDrawing = false;
-
-    const maindiv = tagManager.createDiv({parent: document.body,
-        styles: {'background-color': 'lightblue',
-                'display': 'flex', 
-                'align-items': 'center',
-                'justify-content': 'space-around'
-            }
+    if(isLoaded){
+        tagManager.setVisible(mainContainer, true);
+        return;
+    }
+        
+    isLoaded = true;
+    mainContainer = tagManager.createDiv({parent: mainDiv,
+        styles: {
+            'display': 'flex', 
+            'position': 'absolute',
+            'background-color': 'rgba(0, 0, 0, 0.4)',
+            'padding': "10px",
+            'margin-top': "10px",
+            'margin-right': "100px",
+            'border-radius': '10px',
+            'align-items': 'center',
+            'justify-content': 'space-around'
+        }
     });
 
-    const boardContainer = tagManager.createDiv({parent: maindiv,
+    const boardContainer = tagManager.createDiv({parent: mainContainer,
         styles: {
                 'position': 'relative', 
                 }
@@ -34,7 +47,7 @@ export const createBlackBoard = (scene: Scene) => {
     });
 
     const selectorDiv = tagManager.createDiv({
-        parent: maindiv,
+        parent: mainContainer,
         styles: {
             'display': 'flex',
             'flex-direction': 'column',
@@ -182,3 +195,7 @@ export const createBlackBoard = (scene: Scene) => {
     }
 
 };
+
+export const stopBlackBoard = () =>{
+    tagManager.setVisible(mainContainer, false);
+}

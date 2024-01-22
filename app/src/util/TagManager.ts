@@ -84,6 +84,23 @@ export class TagManager {
       return newCanvas;
     }
 
+
+    createVideo({parent, width, height, styles, id, className, srcObject, autoplay, playsInline}: TagParams): HTMLVideoElement {
+      const newVideo = document.createElement('video');
+      newVideo.width = width;
+      newVideo.height = height;
+      id ? newVideo.id = id : null;
+      className? newVideo.className = className : null;
+      Object.assign(newVideo.style, styles);
+      parent.appendChild(newVideo); 
+      srcObject ? newVideo.srcObject = srcObject : null;
+      autoplay ? newVideo.autoplay = autoplay : newVideo.autoplay = true;
+      playsInline ? newVideo.playsInline = playsInline : newVideo.playsInline = true;
+      return newVideo;
+    }
+
+
+    // DO NOT set display to 'flex' in obj element
     setVisible(obj : HTMLElement, isVisible: boolean) : void {
       if(isVisible)
         obj.style.display = '';

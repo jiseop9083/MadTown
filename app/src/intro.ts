@@ -1,5 +1,10 @@
 import { TagManager } from './util/TagManager';
-
+import Color from './types/Color';
+import { createBlackBoard } from './Page/BlackBoard';
+import { GameScene } from './Page/Game';
+import { Player } from './characters/Player';
+import { startVideoConference } from './video/WebRTC';
+import { pauseGame } from './PhaserGame';
 
 const tagManager = TagManager.getInstance();
 
@@ -24,25 +29,19 @@ const clouds = [
 let currentIndex = 0;
 let cloudImages = [];
 
-export const createIntro = () => {
-    const background = new Image();
-    background.src = require('../assets/clouds/background.jpg');
-    background.onload = function () {
-        document.body.style.backgroundImage = `url(${background.src})`;
-        document.body.style.backgroundSize = 'cover';
-    };
+export const createIntro = (mainDiv : HTMLDivElement) => {
+    
   
-    const maindiv = tagManager.createDiv({
-        parent: document.body,
+    const mainContainer = tagManager.createDiv({
+        parent: mainDiv,
         styles: {
-            'display': 'flex',
             'justify-content': 'center',
             'align-items': 'center',
         },
     });
 
     const popupContainer = tagManager.createDiv({
-        parent: maindiv,
+        parent: mainContainer,
         styles: {
             'position': 'absolute',
             'top': '50%',
@@ -58,23 +57,27 @@ export const createIntro = () => {
             'z-index': '1000',
             'border-radius': '10px', 
         },
+        id: 'popupContainer'
     });
 
     const imageContainer = tagManager.createDiv({
         parent: popupContainer,
+        id: 'avatars',
         styles: {
             position: 'relative',
         },
     });
 
     const buttonContainer = tagManager.createDiv({
-        parent: popupContainer
+        parent: popupContainer,
+        id: 'selectors'
     })
 
     const characterImg = tagManager.createImage({
         parent: imageContainer,
-        width: 100,
-        height: 100,
+        width: 200,
+        height: 200,
+        id: 'avatar',
         src: characters[currentIndex].src,
         alt: characters[currentIndex].name,
     });
@@ -103,33 +106,114 @@ export const createIntro = () => {
         }
     });
 
-    const button = tagManager.createButton({
+    const startButton = tagManager.createButton({
         parent: popupContainer,
-        width: 100,
-        height: 50,
+        width: 130,
+        height: 60,
         text: 'Welcome!',
         styles: {
-            'background-color': '#A8397F',
-            'color': '#ffffff',
+            'background-color': Color.primary,
+            'color': Color.white,
             'border-radius': '10px',
             'margin-top': '20px',
+            'font-weight': '600',
+            'font-size': '20px',
         },
         hoverStyles: { 
             'cursor': 'pointer', 
-            'color': '#000000',
-            'background-color': '#F9F871'
+            'color': Color.black,
+            'background-color': Color.yellow,
+            'font-size': '22px',
         },
         onClick: () => {
 
-            import('./Page/Game').then((indexModule) => {
-                tagManager.setVisible(maindiv, false);
-                window['currentIndex'] = currentIndex;
+            const gameContainer = tagManager.createDiv({
+                parent: mainDiv,
+                id: 'gameContainer',
+                styles: {
+                    'display': 'flex',
+                    'flex-direction': 'row-reverse',
+                }
+            });
+            
 
+            const buttonDiv = tagManager.createDiv({
+                parent: gameContainer,
+                id: 'gameContainer',
+                styles: {
+                    'display': 'flex',
+                    'flex-direction': 'column',
+                    'margin-top': '50px',
+                    'margin-left': '50px',
+                    'justify-content': 'space-around'
+                }
+                
+            });
+
+            const videoButton = tagManager.createButton({
+                parent: buttonDiv,
+                id: 'gameContainer',
+                text: 'Video',
+                width: 140,
+                height: 60,
+                styles: {
+                    'background-color': Color.primary,
+                    'color': Color.white,
+                    'border-radius': '10px',
+                    'margin-top': '20px',
+                    'font-weight': '600',
+                    'font-size': '20px',
+                    'border': 'none',
+                },
+                hoverStyles: { 
+                    'cursor': 'pointer', 
+                    'color': Color.black,
+                    'background-color': Color.yellow,
+                    'font-size': '22px',
+                },
+                onClick: () => {
+                    const game = window.game.scene.keys.GameScene as GameScene;
+
+                    startVideoConference(game, game.currentPlayer, mainDiv );
+                }
+            });
+
+            const boardButton = tagManager.createButton({
+                parent: buttonDiv,
+                id: 'gameContainer',
+                text: 'Black Board',
+                width: 140,
+                height: 60,
+                styles: {
+                    'background-color': Color.primary,
+                    'color': Color.white,
+                    'border-radius': '10px',
+                    'margin-top': '20px',
+                    'font-weight': '600',
+                    'font-size': '20px',
+                    'border': 'none',
+                },
+                hoverStyles: { 
+                    'cursor': 'pointer', 
+                    'color': Color.black,
+                    'background-color': Color.yellow,
+                    'font-size': '22px',
+                },
+                onClick: () => {
+                    const game = window.game.scene.keys.GameScene as GameScene;
+                    createBlackBoard(game, mainDiv);
+                } 
+            });
+
+            import('./PhaserGame').then((indexModule) => {
+                tagManager.setVisible(mainContainer, false);
+                window['currentIndex'] = currentIndex;
                 indexModule.createGame();
-                tagManager.removeTag(button);
+
             }).catch((error) => {
                 console.error('Failed to load index.ts:', error);
             });
+            
         }
     });
 
@@ -137,7 +221,7 @@ export const createIntro = () => {
     // 함수를 사용하여 구름 이미지 생성
     function createCloudImage(index, animationDuration) {
         const cloudImg = tagManager.createImage({
-            parent: maindiv,
+            parent: mainContainer,
             width: 100,
             height: 70,
             src: clouds[index].src,
