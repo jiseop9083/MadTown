@@ -74,6 +74,13 @@ export class MyRoom extends Room<MyRoomState> {
       });
     });  
 
+    this.onMessage("blackboard", (client, data) => {
+      this.broadcast("blackboard", {
+        playerId: client.sessionId,
+        doodle: data.doodle,
+      });
+    });  
+
 
 
 

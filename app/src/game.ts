@@ -6,6 +6,7 @@ import { Player } from "./characters/Player";
 import { PlayerState } from "./types/PlayerState";
 import { startVideoConference } from "./video/WebRTC";
 import { TagManager } from "./util/TagManager";
+import { createBlackBoard } from "./Page/BlackBoard";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -59,6 +60,7 @@ export class GameScene extends Scene {
   chatText: Phaser.GameObjects.Text;
 
   videoButton: Phaser.GameObjects.Text;
+  baordButton: Phaser.GameObjects.Text;
 
   
 
@@ -103,6 +105,18 @@ export class GameScene extends Scene {
       this.videoButton.setInteractive();
       this.videoButton.on('pointerdown', () => {
         startVideoConference(this, this.currentPlayer);
+      });
+
+      this.baordButton = this.add.text(150, 80, 'Start baord', {
+        fontSize: '16px',
+        color: '#000000',
+        backgroundColor: '#3498db',
+        padding: { x: 10, y: 5 },
+      });
+
+      this.baordButton.setInteractive();
+      this.baordButton.on('pointerdown', () => {
+        createBlackBoard(this);
       });
 
 
@@ -269,7 +283,6 @@ export class GameScene extends Scene {
       const { serverX, serverY } = entity.data.values;
       const dx = serverX - entity.x;
       const dy = serverY - entity.y;
-      console.log(dx, dy);
       if(dx > 0){
         entity.changeAnims(PlayerState.RIGHT);
       } else if(dx < 0){

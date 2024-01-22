@@ -9,5 +9,7 @@ export type TagParams = {
     alt?: string,
     text?: string,
     hoverStyles?: any,
+    isVisible?: boolean,
     onClick?: () => void,
+
 };

@@ -1,12 +1,10 @@
 import { TagManager } from './util/TagManager';
 
+
 const tagManager = TagManager.getInstance();
-document.addEventListener('DOMContentLoaded', () => {
-    createIntro();
-});
 
 
-const createIntro = () => {
+export const createIntro = () => {
     const maindiv = tagManager.createDiv({parent: document.body,
         styles: {'background-color': 'lightblue',
                 'display': 'flex', 
@@ -20,7 +18,7 @@ const createIntro = () => {
     const CharacterImg = tagManager.createImage({parent: imageContainer,
         width: 100, 
         height: 100, 
-        src: './assets/characters/character1.png',
+        src: 'd',
         alt: 'character1',
     });
     const button = tagManager.createButton({parent: maindiv,
@@ -33,7 +31,7 @@ const createIntro = () => {
         onClick: () => {
             // 버튼이 클릭되면 index.ts를 동적으로 로드
             import('./game').then((indexModule) => {
-                maindiv.style.display = 'none';
+                tagManager.setVisible(maindiv, false);
                 indexModule.createGame();
             }).catch((error) => {
                 console.error('Failed to load index.ts:', error);

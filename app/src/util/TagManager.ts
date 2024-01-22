@@ -16,7 +16,7 @@ export class TagManager {
       return TagManager.instance;
     }
   
-    createDiv({parent, width, height, styles, id, text, hoverStyles, className}: TagParams): HTMLDivElement {
+    createDiv({parent, width, height, styles, id, text, hoverStyles, isVisible, className}: TagParams): HTMLDivElement {
         const newDiv = document.createElement('div');
         newDiv.style.width = width + 'px';
         newDiv.style.height = height + 'px';
@@ -35,7 +35,7 @@ export class TagManager {
         return newDiv;
     }
 
-    createButton({parent, width, height, styles, id, className, hoverStyles, text, onClick}: TagParams): HTMLButtonElement {
+    createButton({parent, width, height, styles, id, className, isVisible, hoverStyles, text, onClick}: TagParams): HTMLButtonElement {
       const newButton = document.createElement('button');
       newButton.style.width = width + 'px';
       newButton.style.height = height + 'px';
@@ -54,7 +54,7 @@ export class TagManager {
       return newButton;
     }
 
-    createImage({parent, width, height, styles, id, src, alt, hoverStyles, className, onClick}: TagParams): HTMLImageElement {
+    createImage({parent, width, height, styles, id, src, alt, hoverStyles, className, isVisible, onClick}: TagParams): HTMLImageElement {
       const newImage = document.createElement('img');
       newImage.style.width = width + 'px';
       newImage.style.height = height + 'px';
@@ -71,6 +71,27 @@ export class TagManager {
       });
       parent.appendChild(newImage); 
       return newImage;
+    }
+
+    createCanvas({parent, width, height, styles, id, className, isVisible, onClick}: TagParams): HTMLCanvasElement {
+      const newCanvas = document.createElement('canvas');
+      newCanvas.width = width;
+      newCanvas.height = height;
+      id ? newCanvas.id = id : null;
+      className? newCanvas.className = className : null;
+      Object.assign(newCanvas.style, styles);
+      parent.appendChild(newCanvas); 
+      return newCanvas;
+    }
+
+    setVisible(obj : HTMLElement, isVisible: boolean) : void {
+      if(isVisible)
+        obj.style.display = '';
+       else
+        obj.style.display = 'none';
+      for (let i = 0; i < obj.children.length; i++) {
+        this.setVisible(obj.children[i] as HTMLElement, isVisible);
+      }
     }
 }
   
