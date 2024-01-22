@@ -1,59 +1,81 @@
 import { Player } from "../characters/Player";
 import { Scene } from "phaser";
+import { TagManager } from "../util/TagManager";
 
+const tagManager = TagManager.getInstance();
 
-export const startVideoConference = (scene: Scene, player: Player) => {
+export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTMLDivElement) => {
   // get caller's video stream and connet video tag 
   // TODO: move to react component
+  let videoContainer : HTMLDivElement;
+
+
   const handleIce = (data) => {
     console.log('sent candiate');
     scene.room.send("ice", {ice: data.candiate, roomName: player.roomName});
   };
 
   const handleAddStream = (data) => {
-    console.log(data.stream);
-    const peersStream = document.createElement('video');
-    
-    peersStream.srcObject = data.stream;
-    peersStream.autoplay = true;
-    peersStream.playsInline = true;
-
-    const centerX = scene.cameras.main.centerX;
-    const centerY = scene.cameras.main.centerY;
-    const videoWidth = 250;
-    const videoHeight = 200;
-
-    peersStream.style.position = 'absolute';
-    peersStream.style.left = `${centerX + videoWidth * 3 / 2 }px`;
-    peersStream.style.top = `${centerY}px`;
-    peersStream.style.width = `${videoWidth}px`;
-    peersStream.style.height = `${videoHeight}px`;
-
-    document.body.appendChild(peersStream);
+    const peersStream =  tagManager.createVideo({
+      parent: videoContainer,
+      width: 250,
+      height: 200,
+      srcObject: data.stream,
+      autoplay: true,
+      playsInline: true,
+    })
   };
   
 
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then((stream) => {
-      const videoElement = document.createElement('video');
-      videoElement.srcObject = stream;
-      videoElement.playsInline = true;
-      videoElement.autoplay = true;
 
-      
-      // test
-      const videoDiv= document.createElement('div');
-      videoDiv.id = "videoDiv";
-      document.body.appendChild(videoDiv);
-      videoDiv.appendChild(videoElement);
+      const mainContainer = tagManager.createDiv({
+        parent: mainDiv,
+        styles: {
+          'display': 'flex',
+          'flex-direction': 'row',
+        }
+      });
 
+      videoContainer = tagManager.createDiv({
+        parent: mainContainer,
+        styles: {
+          'display': 'flex',
+          'flex-direction': 'column',
+        }
+      });
+      const myVideo = tagManager.createVideo({
+        parent: videoContainer,
+        srcObject: stream,
+        width: 250,
+        height: 200, 
+        playsInline: true,
+        autoplay: true,
+      })
+
+      const inputContainer = tagManager.createDiv({
+        parent: mainContainer,
+        styles: {
+          'display': 'flex',
+          'flex-direction': 'column',
+        }
+      });
 
       const idInput= document.createElement('input');
       idInput.placeholder = "room name"
-      document.body.appendChild(idInput);
-      const idButton= document.createElement('button');
-      idButton.textContent = "클릭";
-      document.body.appendChild(idButton);
+      inputContainer.appendChild(idInput);
+
+      const idButton = tagManager.createButton({
+        parent: inputContainer,
+        text: "클릭",
+        width: 50,
+        height: 100,
+        
+        styles: {
+          'border-radius': '5px',
+        }
+      });
 
       idButton.addEventListener("click", (event) => {
         event.preventDefault();
@@ -71,26 +93,11 @@ export const startVideoConference = (scene: Scene, player: Player) => {
       // 아마 addIceCandidate 호출 전에 이벤트가 넘어가서 그러지 않을ㄲ?
       peerConnection.addEventListener("addstream", handleAddStream);
       stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
-      
-
-      const centerX = scene.cameras.main.centerX;
-      const centerY = scene.cameras.main.centerY;
-      const videoWidth = 250;
-      const videoHeight = 200;
-
-      videoElement.style.position = 'absolute';
-      videoElement.style.left = `${centerX + videoWidth * 3 / 2 }px`;
-      videoElement.style.top = `${centerY - videoHeight}px`;
-      videoElement.style.width = `${videoWidth}px`;
-      videoElement.style.height = `${videoHeight}px`;
-
-      
 
       scene.room.onMessage("join_room", async (messageData) => {
         if(scene.currentPlayer.roomName == messageData.roomName){ // do not needed
           if(scene.currentPlayer.playerId == messageData.playerId){
             console.log("its me!!"); 
-
           } else{
             console.log(`join ${messageData.playerId}!!`); 
             const offer = await peerConnection.createOffer();
@@ -129,21 +136,6 @@ export const startVideoConference = (scene: Scene, player: Player) => {
         await peerConnection.addIceCandidate(messageData.ice);
 
       });
-
-      // // temp
-      // const callerName = " ";
-      // const calleeId =  "cal";
-      
-      // const callerPeer = new Peer({
-      //   initiator: true, //요청자 이므로 true!
-      //   stream: stream,
-      // });
-
-      
-      // callerPeer.on('signal', callerSignal => {
-      //   callerSocket.emit('joinCaller', { signal: callerSignal, name: callerName, callee: calleeId });
-      // });
-
   })
   .catch((error) => {
     console.error('Error accessing webcam and/or microphone:', error);

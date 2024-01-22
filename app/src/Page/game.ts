@@ -5,8 +5,8 @@ import { createCharacterAnims } from "../anims/CharacterAnims";
 import { Player } from "../characters/Player";
 import { PlayerState } from "../types/PlayerState";
 import { startVideoConference } from "../video/WebRTC";
-import { TagManager } from "../util/TagManager";
 import { createBlackBoard } from "./BlackBoard";
+import { TagManager } from "../util/TagManager";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -15,14 +15,14 @@ const SERVER_URI = process.env.MOCK_SERVER_URI;
 
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 600;
-let game: Phaser.Game;
 
 declare var currentIndex: number;
+
 
 // custom scene class
 export class GameScene extends Scene {
   constructor() {
-    super({ key: 'GameScene' }); // 여기서 'GameScene'이 키(key)입니다.
+    super({ key: 'GameScene' });
   }
 
 
@@ -66,11 +66,6 @@ export class GameScene extends Scene {
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   chatText: Phaser.GameObjects.Text;
 
-  videoButton: Phaser.GameObjects.Text;
-  baordButton: Phaser.GameObjects.Text;
-
-  
-
   async create() {
     console.log("Joining room...");
 
@@ -102,36 +97,8 @@ export class GameScene extends Scene {
         color: '#ffffff',
       });
 
-      this.videoButton = this.add.text(10, 80, 'Start Video', {
-        fontSize: '16px',
-        color: '#000000',
-        backgroundColor: '#3498db',
-        padding: { x: 10, y: 5 },
-      });
-
-      this.videoButton.setInteractive();
-      this.videoButton.on('pointerdown', () => {
-        startVideoConference(this, this.currentPlayer);
-      });
-
-      this.baordButton = this.add.text(150, 80, 'Start baord', {
-        fontSize: '16px',
-        color: '#000000',
-        backgroundColor: '#3498db',
-        padding: { x: 10, y: 5 },
-      });
-
-      this.baordButton.setInteractive();
-      this.baordButton.on('pointerdown', () => {
-        createBlackBoard(this);
-      });
-
-
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    
-      
-
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -215,8 +182,6 @@ export class GameScene extends Scene {
     }
   }
   
-
- 
 
   onLeave(player){
       this.room.state.players.onRemove((player, sessionId) => {
@@ -314,44 +279,3 @@ export class GameScene extends Scene {
     //
   }
 }
-
-// game config
-const config: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    width: MAP_WIDTH,
-    height: MAP_HEIGHT,
-    backgroundColor: '#b6d53c',
-    parent: 'phaser-example',
-    physics: { default: "arcade" },
-    pixelArt: true,
-    scene: [ GameScene ],
-};
-
-// instantiate the game
-//const game = new Phaser.Game(config);
-
-
-export function createGame() {
-  try{
-    game = new Phaser.Game(config);
-  } catch(e){
-    throw new Error('Function not implemented.');
-  }
-}
-
-export function pauseGame() {
-  if (game) {
-    game.scene.pause('GameScene');
-  } else {
-    throw new Error('Game instance not defined.');
-  }
-}
-
-export function resumeGame() {
-  if (game) {
-    game.scene.resume('GameScene');
-  } else {
-    throw new Error('Game instance not defined.');
-  }
-}
-
