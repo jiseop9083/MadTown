@@ -1,15 +1,43 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const button = document.createElement('button');
-    button.textContent = 'Click me to load index.ts';
-    button.addEventListener('click', () => {
-        // 버튼이 클릭되면 index.ts를 동적으로 로드
-        import('./index').then((indexModule) => {
-            button.style.display = 'none';
-            indexModule.handleButtonClick();
-        }).catch((error) => {
-            console.error('Failed to load index.ts:', error);
-        });
-    });
+import { TagManager } from './util/TagManager';
 
-    document.body.appendChild(button);
+const tagManager = TagManager.getInstance();
+document.addEventListener('DOMContentLoaded', () => {
+    createIntro();
 });
+
+
+const createIntro = () => {
+    const maindiv = tagManager.createDiv({parent: document.body,
+        styles: {'background-color': 'lightblue',
+                'display': 'flex', 
+                'justify-content': 'center',
+                'align-items': 'center',
+                }
+        });
+    const imageContainer = tagManager.createDiv({parent: maindiv,
+
+        });
+    const CharacterImg = tagManager.createImage({parent: imageContainer,
+        width: 100, 
+        height: 100, 
+        src: './assets/characters/character1.png',
+        alt: 'character1',
+    });
+    const button = tagManager.createButton({parent: maindiv,
+        width: 100, 
+        height: 100, 
+        text: 'Click me to load index.ts',
+        styles: {'background-color': 'red',
+                'border-radius': '10px'},
+        hoverStyles: {'cursor': 'pointer', 'background-color': 'blue'},
+        onClick: () => {
+            // 버튼이 클릭되면 index.ts를 동적으로 로드
+            import('./game').then((indexModule) => {
+                maindiv.style.display = 'none';
+                indexModule.createGame();
+            }).catch((error) => {
+                console.error('Failed to load index.ts:', error);
+            });
+       }
+    });
+};
