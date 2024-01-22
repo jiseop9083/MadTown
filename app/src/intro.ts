@@ -5,7 +5,8 @@ const tagManager = TagManager.getInstance();
 
 const characters = [
     { name: 'character1', src: require("../assets/characters/character1.png") },
-    { name: 'character2', src: require("../assets/characters/character2.png") }
+    { name: 'character2', src: require("../assets/characters/character2.png") },
+    { name: 'character3', src: require("../assets/characters/character3.png") }
 ];
 
 const clouds = [
