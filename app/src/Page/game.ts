@@ -1,12 +1,12 @@
 import { Scene } from "phaser";
 import { Client, Room } from "colyseus.js";
 
-import { createCharacterAnims } from "./anims/CharacterAnims";
-import { Player } from "./characters/Player";
-import { PlayerState } from "./types/PlayerState";
-import { startVideoConference } from "./video/WebRTC";
-import { TagManager } from "./util/TagManager";
-import { createBlackBoard } from "./Page/BlackBoard";
+import { createCharacterAnims } from "../anims/CharacterAnims";
+import { Player } from "../characters/Player";
+import { PlayerState } from "../types/PlayerState";
+import { startVideoConference } from "../video/WebRTC";
+import { TagManager } from "../util/TagManager";
+import { createBlackBoard } from "./BlackBoard";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -34,9 +34,9 @@ export class GameScene extends Scene {
 
     this.load.spritesheet('avatar2_idle', `${HTTP_SERVER_URI}/image/player-character2_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar2_front', `${HTTP_SERVER_URI}/image/player-character2_front.png`, { frameWidth: 32, frameHeight: 32 });
-    this.load.spritesheet('avatar2_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
-    this.load.spritesheet('avatar2_right', `${HTTP_SERVER_URI}/image/player-character1_right.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
-    this.load.spritesheet('avatar2_left', `${HTTP_SERVER_URI}/image/player-character1_left.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
+    this.load.spritesheet('avatar2_back', `${HTTP_SERVER_URI}/image/player-character2_back.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
+    this.load.spritesheet('avatar2_right', `${HTTP_SERVER_URI}/image/player-character2_right.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
+    this.load.spritesheet('avatar2_left', `${HTTP_SERVER_URI}/image/player-character2_left.png`, { frameWidth: 32, frameHeight: 32 }); // 나중에 2로 변경
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     

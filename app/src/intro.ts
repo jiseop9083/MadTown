@@ -123,7 +123,7 @@ export const createIntro = () => {
         },
         hoverStyles: { 'cursor': 'pointer', 'background-color': 'blue' },
         onClick: () => {
-            import('./game').then((indexModule) => {
+            import('./Page/game').then((indexModule) => {
                 tagManager.setVisible(maindiv, false);
                 window['currentIndex'] = currentIndex;
 
