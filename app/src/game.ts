@@ -5,21 +5,27 @@ import { createCharacterAnims } from "./anims/CharacterAnims";
 import { Player } from "./characters/Player";
 import { PlayerState } from "./types/PlayerState";
 import { startVideoConference } from "./video/WebRTC";
+import { TagManager } from "./util/TagManager";
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
-const SERVER_URI = process.env.SERVER_URI;
-
+const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
+const SERVER_URI = process.env.MOCK_SERVER_URI;
+let game: Phaser.Game;
 
 // custom scene class
 export class GameScene extends Scene {
+  constructor() {
+    super({ key: 'GameScene' }); // 여기서 'GameScene'이 키(key)입니다.
+  }
+
+
   playerGroup: Phaser.Physics.Arcade.Group;
   preload() {
+    console.log("ddd");
     // DOTO: merge spritesheet with similar thing to reduce loading time
     // EX) idle + moveRight + moveLeft + and so on...
     this.load.image('santa', `${HTTP_SERVER_URI}/image/player-mountainUp.png`);
-    //this.load.image('avatar1', `${HTTP_SERVER_URI}/image/player-character1_idle.png`);
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
     this.load.spritesheet('avatar_idle', `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
@@ -127,7 +133,7 @@ export class GameScene extends Scene {
       this.playerGroup = this.physics.add.group();
       this.physics.world.enable(this.playerGroup);
 
-      this.physics.add.collider(this.playerGroup, this.playerGroup, (player1, player2) => {
+      this.physics.add.collider(this.playerGroup, this.playerGroup, (player1 : Player, player2 : Player) => {
         const overlapX = player1.x - player2.x;
         const overlapY = player1.y - player2.y;
     
@@ -295,8 +301,30 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 // instantiate the game
-const game = new Phaser.Game(config);
+//const game = new Phaser.Game(config);
 
-export function handleButtonClick() {
+
+export function createGame() {
+  try{
+    game = new Phaser.Game(config);
+  } catch(e){
     throw new Error('Function not implemented.');
+  }
 }
+
+export function pauseGame() {
+  if (game) {
+    game.scene.pause('GameScene');
+  } else {
+    throw new Error('Game instance not defined.');
+  }
+}
+
+export function resumeGame() {
+  if (game) {
+    game.scene.resume('GameScene');
+  } else {
+    throw new Error('Game instance not defined.');
+  }
+}
+
