@@ -16,7 +16,7 @@ const clouds = [
 let currentIndex = 0;
 
 
-const createIntro = () => {
+export const createIntro = () => {
     const maindiv = tagManager.createDiv({
         parent: document.body,
         styles: {

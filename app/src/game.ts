@@ -72,7 +72,7 @@ export class GameScene extends Scene {
     console.log("Joining room...");
 
     try {
-      this.room = await this.client.joinOrCreate("my_room");
+      this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1});
 
       createCharacterAnims(this.anims);
 
@@ -172,7 +172,8 @@ export class GameScene extends Scene {
     });
     
       this.room.state.players.onAdd((player, sessionId) => {
-        const entity = new Player(this, player.x, player.y, `avatar${currentIndex+1}`, sessionId, 1);
+        console.log(player.texture);
+        const entity = new Player(this, player.x, player.y, `avatar${player.texture}`, sessionId, 1);
         this.playerGroup.add(entity);
         this.playerEntities[sessionId] = entity;
         entity.setCollideWorldBounds(true);
