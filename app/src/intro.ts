@@ -22,6 +22,7 @@ const clouds = [
 ];
 
 let currentIndex = 0;
+let cloudImages = [];
 
 export const createIntro = () => {
     const background = new Image();
@@ -58,7 +59,6 @@ export const createIntro = () => {
             'border-radius': '10px', 
         },
     });
-    
 
     const imageContainer = tagManager.createDiv({
         parent: popupContainer,
@@ -165,6 +165,7 @@ export const createIntro = () => {
         `;
 
         document.head.appendChild(styles);
+        cloudImages.push(cloudImg);
 
         return cloudImg;
     }
