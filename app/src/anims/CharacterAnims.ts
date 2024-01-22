@@ -37,7 +37,7 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
 
 
     anims.create({
-        key: `1_left`,
+        key: `avatar1_left`,
         frames: anims.generateFrameNames(`avatar1_left`, {
             start: 0,
             end: 3,

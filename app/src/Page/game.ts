@@ -12,6 +12,9 @@ dotenv.config();
 
 const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
 const SERVER_URI = process.env.MOCK_SERVER_URI;
+
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 600;
 let game: Phaser.Game;
 
 declare var currentIndex: number;
@@ -180,6 +183,12 @@ export class GameScene extends Scene {
 
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
+          this.cameras.main.startFollow(this.currentPlayer);
+
+          this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
+          this.cameras.main.setZoom(2.5);
+          this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
           // this is being used for debug only
           entity.debugMode(true);
 
@@ -309,8 +318,8 @@ export class GameScene extends Scene {
 // game config
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: 576,
-    height: 640,
+    width: MAP_WIDTH,
+    height: MAP_HEIGHT,
     backgroundColor: '#b6d53c',
     parent: 'phaser-example',
     physics: { default: "arcade" },
