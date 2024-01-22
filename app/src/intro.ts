@@ -1,9 +1,7 @@
 import { TagManager } from './util/TagManager';
 
+
 const tagManager = TagManager.getInstance();
-document.addEventListener('DOMContentLoaded', () => {
-    createIntro();
-});
 
 const characters = [
     { name: 'character1', src: require("../assets/characters/character1.png") },
@@ -16,6 +14,7 @@ const clouds = [
 ];
 
 let currentIndex = 0;
+
 
 const createIntro = () => {
     const maindiv = tagManager.createDiv({
@@ -125,9 +124,9 @@ const createIntro = () => {
         hoverStyles: { 'cursor': 'pointer', 'background-color': 'blue' },
         onClick: () => {
             import('./game').then((indexModule) => {
+                tagManager.setVisible(maindiv, false);
                 window['currentIndex'] = currentIndex;
 
-                maindiv.style.display = 'none';
                 indexModule.createGame();
             }).catch((error) => {
                 console.error('Failed to load index.ts:', error);
