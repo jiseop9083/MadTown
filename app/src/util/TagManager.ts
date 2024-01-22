@@ -93,5 +93,12 @@ export class TagManager {
         this.setVisible(obj.children[i] as HTMLElement, isVisible);
       }
     }
+
+    removeTag(tag: HTMLElement): void {
+      const parent = tag.parentElement;
+      if (parent) {
+          parent.removeChild(tag);
+      }
+  }
 }
   
