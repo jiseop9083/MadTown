@@ -13,6 +13,8 @@ const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
 const SERVER_URI = process.env.MOCK_SERVER_URI;
 let game: Phaser.Game;
 
+declare var currentIndex: number;
+
 // custom scene class
 export class GameScene extends Scene {
   constructor() {
@@ -24,10 +26,10 @@ export class GameScene extends Scene {
   preload() {
     console.log("ddd");
     // DOTO: merge spritesheet with similar thing to reduce loading time
-    // EX) idle + moveRight + moveLeft + and so on...
+
     this.load.image('santa', `${HTTP_SERVER_URI}/image/player-mountainUp.png`);
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
-    this.load.spritesheet('avatar_idle', `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('avatar_idle', `${HTTP_SERVER_URI}/image/player-character${currentIndex + 1}_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar_right', `${HTTP_SERVER_URI}/image/player-character1_right.png`, { frameWidth: 32, frameHeight: 32 });

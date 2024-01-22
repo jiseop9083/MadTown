@@ -63,6 +63,8 @@ const createIntro = () => {
         hoverStyles: {'cursor': 'pointer', 'background-color': 'blue'},
         onClick: () => {
             import('./game').then((indexModule) => {
+                window['currentIndex'] = currentIndex;
+
                 maindiv.style.display = 'none';
                 indexModule.createGame();
             }).catch((error) => {
