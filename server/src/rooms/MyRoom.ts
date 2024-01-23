@@ -33,9 +33,15 @@ export class MyRoom extends Room<MyRoomState> {
         playerId: client.sessionId,
         roomName: data.roomName
       });
-      
+    });
 
-    });  
+    this.onMessage("join_room_screen", (client, data) => {
+      
+      this.broadcast("join_room_screen", {
+        playerId: client.sessionId,
+        roomName: data.roomName
+      });
+    });
 
     this.onMessage("offer", (client, data) => {
       
@@ -69,10 +75,29 @@ export class MyRoom extends Room<MyRoomState> {
         playerId: client.sessionId,
         doodle: data.doodle,
       });
-    });  
-
-
-
+    });
+    
+    this.onMessage("offer_screen", (client, data) => {
+      console.log("offer screen : ", data);
+      this.broadcast("offer_screen", {
+        playerId: client.sessionId,
+        offer: data.offer,
+      });
+    });
+    
+    this.onMessage("answer_screen", (client, data) => {
+      this.broadcast("answer_screen", {
+        playerId: client.sessionId,
+        answer: data.answer,
+      });
+    });
+    
+    this.onMessage("screen_ice", (client, data) => {
+      this.broadcast("screen_ice", {
+        playerId: client.sessionId,
+        candidate: data.candidate,
+      });
+    });
 
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {

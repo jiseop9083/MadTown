@@ -280,6 +280,34 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             } 
         });
 
+        const shareButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'boardButton',
+            text: 'Screen Share',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                const game = window.game.scene.keys.GameScene as GameScene;
+
+                shareScreen(game, game.currentPlayer, mainDiv);
+            } 
+        });
+
         import('./PhaserGame').then((indexModule) => {
             tagManager.setVisible(mainContainer, false);
             window['currentIndex'] = currentIndex;
