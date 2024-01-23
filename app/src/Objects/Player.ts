@@ -7,6 +7,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     playerId: string;
     playerTexture: string;
     playerState = PlayerState.IDLE;
+    playerNumber: number;
     roomName: string;
     playerName: Phaser.GameObjects.Text;
     playerContainer: Phaser.GameObjects.Container;
@@ -14,6 +15,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     previousX: number;
     previousY: number;
     size: number;
+    isSit: boolean;
+    sitCounter: number;
     // private playerDialogBubble: Phaser.GameObjects.Container;
   
     constructor(
@@ -29,11 +32,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         scene.add.existing(this);
         this.playerId = id;
-        this.playerTexture = texture;
+        this.playerTexture = `avatar${texture}`;
+        this.playerNumber = Number(texture) * 6 - 1;
         this.anims.play(`${this.playerTexture}_idle`);
         this.size = size * 32;
         this.setDisplaySize(this.size, this.size);
-        
+        this.isSit = false;
+        this.sitCounter = 0;
         this.roomName = "";
         this.playerContainer = this.scene.add.container(this.x, this.y).setDepth(5000);
         this.scene.physics.world.enable(this.playerContainer);
@@ -42,8 +47,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     };
 
     update = () => {
+        if(this.sitCounter > 0)
+            this.sitCounter--;
+        if(this.isSit)
+            return;
         this.playerContainer.x = this.x + this.size * 0.26;
         this.playerContainer.y = this.y + this.size * 0.13;
+        
+        
     }
     
 

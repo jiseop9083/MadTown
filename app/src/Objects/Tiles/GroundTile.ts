@@ -1,6 +1,6 @@
 import { Tile } from "./Tile";
 import { Player } from "../Player";
-
+import { GameScene } from "../../Page/Game";
             
 export class GroundTile extends Tile {
     scene: Phaser.Scene;
@@ -19,8 +19,9 @@ export class GroundTile extends Tile {
 
     onCollision(player: Player) {
         super.onCollision(player);
-        console.log(player);
         player.x = player.previousX;
         player.y = player.previousY;
     };
+
+    openEvent(scene: GameScene, isPress: boolean) {};
 }

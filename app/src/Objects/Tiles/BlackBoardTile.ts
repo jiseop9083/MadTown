@@ -1,5 +1,7 @@
 import { Tile } from "./Tile";
 import { Player } from "../Player";
+import { GameScene } from "../../Page/Game";
+import { createBlackBoard } from "../../Page/BlackBoard";
 
             
 export class BlackBoardTile extends Tile {
@@ -20,8 +22,16 @@ export class BlackBoardTile extends Tile {
 
     onCollision(player: Player) {
         super.onCollision(player);
-        console.log(player);
         player.x = player.previousX;
         player.y = player.previousY;
     };
+
+    openEvent(scene: GameScene, isPress: boolean) {
+        if(!isPress) return;
+        //const game = window.game.scene.keys.GameScene as GameScene;
+        const mainDiv = document.getElementById('main') as HTMLDivElement;
+        createBlackBoard(scene, mainDiv);
+    }
+
+    
 }

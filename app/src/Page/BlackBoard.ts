@@ -7,7 +7,6 @@ let mainContainer: HTMLDivElement;
 let isLoaded = false;
 
 export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
-    console.log(scene);
     // instance
     const CANVAS_WIDTH = 700;
     const CANVAS_HEIGHT = 500;

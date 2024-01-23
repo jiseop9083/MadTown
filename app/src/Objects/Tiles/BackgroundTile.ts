@@ -1,6 +1,6 @@
 import { Tile } from "./Tile";
 import { Player } from "../Player";
-
+import { GameScene } from "../../Page/Game";
             
 export class ChairTile extends Tile {
     scene: Phaser.Scene;
@@ -20,4 +20,6 @@ export class ChairTile extends Tile {
     onCollision(player: Player) {
         super.onCollision(player);
     };
+
+    openEvent(scene: GameScene, isPress: boolean) {};
 }
