@@ -4,14 +4,15 @@ import { Client, Room } from "colyseus.js";
 import { createCharacterAnims } from "../anims/CharacterAnims";
 import { Player } from "../characters/Player";
 import { PlayerState } from "../types/PlayerState";
-import { startVideoConference } from "../video/WebRTC";
-import { createBlackBoard } from "./BlackBoard";
 import { TagManager } from "../util/TagManager";
+import Color from "../types/Color";
+
 const dotenv = require('dotenv');
 dotenv.config();
 
 const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
 const SERVER_URI = process.env.MOCK_SERVER_URI;
+const tagManager = TagManager.getInstance();
 
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 600;
@@ -75,27 +76,28 @@ export class GameScene extends Scene {
 
   async create() {
     console.log("Joining room...");
-
     try {
       this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1});
 
       createCharacterAnims(this.anims);
 
-      this.input.keyboard.on('keydown-ENTER', () => {
-        const message = prompt("Enter your message:");
-        if (message) {
-          // Send chat message to the server with the player's position
-          this.room.send("chat", {"chat": {
-            message,
-            position: { x: this.currentPlayer.x, y: this.currentPlayer.y }
-          }});
-        }
-      });
+      // this.input.keyboard.on('keydown-ENTER', () => {
+      //   const message = prompt("Enter your message:");
+      //   if (message) {
+      //     // Send chat message to the server with the player's position
+      //     this.room.send("chat", {"chat": {
+      //       message,
+      //       position: { x: this.currentPlayer.x, y: this.currentPlayer.y }
+      //     }});
+      //   }
+      // });
 
       const map = this.make.tilemap({ key: 'classroom' });
+      console.log(map);
       const tileset = map.addTilesetImage('tile_map', 'tiles');
       const backgroundLayer = map.createLayer("background", tileset, 0,0);
       const groundLayer = map.createLayer("ground", tileset, 0,0);
+      const metaDataLayer = map.createLayer("metaData", tileset, 0,0);
      
       // groundLayer.setCollisionBetween(0, 4);
       // this.physics.world.enable(groundLayer);
@@ -110,7 +112,6 @@ export class GameScene extends Scene {
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
         const { playerId, message, position } = messageData;
-    
         // Check if the player is nearby before displaying the message
         const distance = Phaser.Math.Distance.Between(
           this.currentPlayer.x,
@@ -119,6 +120,18 @@ export class GameScene extends Scene {
           position.y
         );
         if (distance < 100) {
+          const messageContainer = document.getElementById('messageContainer');
+          tagManager.createDiv({
+            parent: messageContainer,
+            text:  `Player ${playerId}: ${message}`,
+            styles: {
+              'font-size': '14px',
+              'color': Color.gray50,
+              'margin-left': '10px',
+              'margin-top': '5px',
+              'font-weight': 300,
+            }
+          })
           this.chatText.setText(this.chatText.text +  `Player ${playerId}: ${message}\n`);
           // Scroll to the bottom if there is a scroll
           this.chatText.setScrollFactor(0, 0);

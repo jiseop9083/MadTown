@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { TagManager } from '../util/TagManager';
+import Color from '../types/Color';
 
 const tagManager = TagManager.getInstance();
 let mainContainer: HTMLDivElement;
@@ -21,7 +22,7 @@ export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
         styles: {
             'display': 'flex', 
             'position': 'absolute',
-            'background-color': 'rgba(0, 0, 0, 0.4)',
+            'background-color': Color.transparent,
             'padding': "10px",
             'margin-top': "10px",
             'margin-right': "100px",
@@ -121,6 +122,32 @@ export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
             'background-color': 'green',
         },
         onClick: () => clearBoard(),
+    });
+
+    const closeButton = tagManager.createButton({
+        parent: selectorDiv,
+        text: 'X',
+        width: 40,
+        styles: {
+            'position': 'absolute',
+            'right': '30px',
+            'bottom': '30px',
+            'border-radius': '20px',
+            'background-color': Color.red,
+            'color': Color.white,
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
+        },
+        hoverStyles: {
+            'cursor': 'pointer',
+            'background-color': Color.white,
+            'color': Color.red,
+            'border': `1px solid ${Color.red}`,
+        },
+        onClick: () => {
+            tagManager.setVisible(mainContainer, false);
+        },
     });
 
     // main board logic

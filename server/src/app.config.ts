@@ -46,7 +46,7 @@ export default config({
             const resultArray = mapName.split('-');
             const joinedString = resultArray.join('/');
             const mapPath = path.join(__dirname, '../assets', joinedString);
-            fs.readFile(mapPath, 'utf8', (err: any, data: string) => {
+            fs.readFile(mapPath, 'utf-8', (err: any, data: string) => {
                 if (err) {
                     console.error('Error reading JSON file:', err);
                     return;

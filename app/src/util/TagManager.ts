@@ -99,13 +99,28 @@ export class TagManager {
       return newVideo;
     }
 
+    createInput({parent, width, height, styles, id, className, placeholder}: TagParams): HTMLInputElement {
+      const newInput = document.createElement('input');
+      newInput.width = width;
+      newInput.height = height;
+      id ? newInput.id = id : null;
+      className? newInput.className = className : null;
+      Object.assign(newInput.style, styles);
+      placeholder ? newInput.placeholder = placeholder : '';
+      parent.appendChild(newInput); 
+      return newInput;
+    }
+
 
     // DO NOT set display to 'flex' in obj element
     setVisible(obj : HTMLElement, isVisible: boolean) : void {
-      if(isVisible)
-        obj.style.display = '';
-       else
+      if(isVisible){
+        obj.style.display = obj.dataset.originalDisplay || '';
+      }
+       else{
+        obj.dataset.originalDisplay = obj.style.display;
         obj.style.display = 'none';
+       }
       for (let i = 0; i < obj.children.length; i++) {
         this.setVisible(obj.children[i] as HTMLElement, isVisible);
       }
