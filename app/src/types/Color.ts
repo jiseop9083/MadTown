@@ -12,6 +12,7 @@ const Color = {
     gray500: "#6d6d6d",
     gray600: "#444444",
     red: "#f83535",
+    transparent: 'rgba(0, 0, 0, 0.4)',
 };
 
 export default Color;

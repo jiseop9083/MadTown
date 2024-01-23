@@ -1,6 +1,7 @@
 import { Player } from "../characters/Player";
 import { Scene } from "phaser";
 import { TagManager } from "../util/TagManager";
+import Color from "../types/Color";
 
 const tagManager = TagManager.getInstance();
 
@@ -18,11 +19,15 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
   const handleAddStream = (data) => {
     const peersStream =  tagManager.createVideo({
       parent: videoContainer,
-      width: 250,
-      height: 200,
+      width: 350,
+      height: 280,
       srcObject: data.stream,
       autoplay: true,
       playsInline: true,
+      styles: {
+        'border-radius': '30px',
+        'margin-top': '20px',
+      }
     })
   };
   
@@ -33,8 +38,12 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
       const mainContainer = tagManager.createDiv({
         parent: mainDiv,
         styles: {
-          'display': 'flex',
-          'flex-direction': 'row',
+          'position': 'absolute',
+          'width': '50%',
+          'height': '50%',
+          'background-color': 'rgba(0, 0, 0, 0.4)',
+          'z-index': '1000',
+          'border-radius': '10px', 
         }
       });
 
@@ -43,47 +52,88 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
         styles: {
           'display': 'flex',
           'flex-direction': 'column',
+          'margin': '16px',
         }
       });
       const myVideo = tagManager.createVideo({
         parent: videoContainer,
         srcObject: stream,
-        width: 250,
-        height: 200, 
+        width: 350,
+        height: 280, 
         playsInline: true,
         autoplay: true,
+        styles: {
+          'margin-top': '20px',
+          'border-radius': '30px',
+        }
       })
 
       const inputContainer = tagManager.createDiv({
         parent: mainContainer,
         styles: {
           'display': 'flex',
-          'flex-direction': 'column',
+          'flex-direction': 'row',
+          'margin': '20px',
         }
       });
 
-      const idInput= document.createElement('input');
-      idInput.placeholder = "room name"
-      inputContainer.appendChild(idInput);
+      const idInput = tagManager.createInput({
+        parent: inputContainer,
+        width: 200,
+        height: 40,
+        placeholder: "room name",
+        styles: {
+          'display': 'flex',
+          'border-radius': '10px',
+          'font-size': '20px',
+        }
+      });
 
       const idButton = tagManager.createButton({
         parent: inputContainer,
-        text: "클릭",
-        width: 50,
-        height: 100,
-        
+        text: "입장",
+        width: 60,
+        height: 45,
+        onClick: (event) => {
+          event.preventDefault();
+          const roomName = idInput.value;
+          player.roomName = roomName;
+          scene.room.send("join_room", {roomName});
+          idInput.value = "";
+        },
         styles: {
           'border-radius': '5px',
+          'margin-left': '10px',
+          'font-size': '20px',
         }
       });
 
-      idButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        const roomName = idInput.value;
-        player.roomName = roomName;
-        scene.room.send("join_room", {roomName});
-        idInput.value = "";
+      const closeButton = tagManager.createButton({
+          parent: mainContainer,
+          text: 'X',
+          width: 40,
+          styles: {
+            'position': 'absolute',
+            'right': '30px',
+            'bottom': '30px',
+            'border-radius': '20px',
+            'background-color': Color.red,
+            'color': Color.white,
+            'font-size': '24px',
+            'fontWeight': '580',
+            'margin-bottom': '10px'
+          },
+          hoverStyles: {
+              'cursor': 'pointer',
+              'background-color': Color.white,
+              'color': Color.red,
+              'border': `1px solid ${Color.red}`,
+          },
+          onClick: () => {
+              tagManager.setVisible(mainContainer, false);
+          },
       });
+
 
       /// RTC code
       // TODO: create makeConnection function and move it

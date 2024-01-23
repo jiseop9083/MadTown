@@ -28,16 +28,6 @@ export class MyRoom extends Room<MyRoomState> {
     });  
 
     this.onMessage("join_room", (client, data) => {
-      // let id;
- 
-      // const name = data.roomName;
-      // if(this.rooms.has(name)){
-      //   id = this.rooms.get(name);
-      // } else {
-      //   this.rooms.set(name, client.sessionId);
-      //   id = client.sessionId;
-      // }
-
       
       this.broadcast("join_room", {
         playerId: client.sessionId,
@@ -102,7 +92,6 @@ export class MyRoom extends Room<MyRoomState> {
 
   fixedTick(deltaTime: number){
     const velocity = 2;
-
     this.state.players.forEach(player => {
         let input: any;
 
