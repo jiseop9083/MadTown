@@ -1,4 +1,5 @@
 import { GameScene } from "./Page/Game";
+import Color from "./types/Color";
 
 
 const MAP_WIDTH = 1000;
@@ -11,9 +12,14 @@ const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: MAP_WIDTH,
     height: MAP_HEIGHT,
-    backgroundColor: '#b6d53c',
+    backgroundColor: Color.transparent,
     parent: 'gameContainer',
-    physics: { default: "arcade" },
+    physics: { default: "arcade",
+        arcade: {
+            debug: true,
+            gravity: { y: 0 }
+        } 
+    },
     pixelArt: true,
     scene: [ GameScene ],
 };
@@ -21,9 +27,7 @@ const config: Phaser.Types.Core.GameConfig = {
 // instantiate the game
 //const game = new Phaser.Game(config);
 
-export const getScene =  () => {
-  return config.scene[0]
-}
+
 
 export function createGame() {
 

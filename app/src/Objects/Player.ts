@@ -11,6 +11,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     playerName: Phaser.GameObjects.Text;
     playerContainer: Phaser.GameObjects.Container;
     scene: Phaser.Scene;
+    previousX: number;
+    previousY: number;
+    size: number;
     // private playerDialogBubble: Phaser.GameObjects.Container;
   
     constructor(
@@ -22,31 +25,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         size: number = 1,
         frame?: string | number
     ) {
-        super(scene, x, y, texture, frame);
+        super(scene, x * 32 + 16, y* 32 + 16, texture, frame);
         this.scene = scene;
         scene.add.existing(this);
-       // scene.physics.add.existing(this);
         this.playerId = id;
         this.playerTexture = texture;
-        // this.setDepth(this.y);
         this.anims.play(`${this.playerTexture}_idle`);
-        this.setScale(size);
-        this.playerContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000);
+        this.size = size * 32;
+        this.setDisplaySize(this.size, this.size);
+        
         this.roomName = "";
-        
+        this.playerContainer = this.scene.add.container(this.x, this.y).setDepth(5000);
         this.scene.physics.world.enable(this.playerContainer);
-        // const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body;
-        // const collisionScale = [0.8, 0.8];
-        // playContainerBody.setSize(this.width * collisionScale[0], this.height * collisionScale[1])//.setOffset(-8, this.height * (1 - collisionScale[1]) + 6);
+        const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body;
+        playContainerBody.setSize(this.width * 0.5, this.height * 0.74);
     };
-        
 
-    debugMode = (mode : boolean) => {
-        if(mode){
-            this.scene.remoteRef = this.scene.add.rectangle(0, 0, this.width, this.height);
-            this.scene.remoteRef.setStrokeStyle(1, 0xff0000);
-        }
-    };
+    update = () => {
+        this.playerContainer.x = this.x + this.size * 0.26;
+        this.playerContainer.y = this.y + this.size * 0.13;
+    }
+    
 
     changeAnims = (state : PlayerState) => {
         switch(state){

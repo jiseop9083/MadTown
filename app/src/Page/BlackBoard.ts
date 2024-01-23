@@ -18,17 +18,21 @@ export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
     }
         
     isLoaded = true;
+
     mainContainer = tagManager.createDiv({parent: mainDiv,
         styles: {
-            'display': 'flex', 
             'position': 'absolute',
-            'background-color': Color.transparent,
+            'top': '0px',
+            'left': '0px',
             'padding': "10px",
             'margin-top': "10px",
             'margin-right': "100px",
-            'border-radius': '10px',
+            'display': 'flex', 
+            'background-color': Color.transparent,
+            'justify-content': 'space-around',
             'align-items': 'center',
-            'justify-content': 'space-around'
+            'border-radius': '10px',
+            
         }
     });
 

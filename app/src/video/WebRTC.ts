@@ -1,4 +1,4 @@
-import { Player } from "../characters/Player";
+import { Player } from "../Objects/Player";
 import { Scene } from "phaser";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";

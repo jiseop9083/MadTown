@@ -2,7 +2,7 @@ import { TagManager } from './util/TagManager';
 import Color from './types/Color';
 import { createBlackBoard } from './Page/BlackBoard';
 import { GameScene } from './Page/Game';
-import { Player } from './characters/Player';
+import { Player } from './Objects/Player';
 import { startVideoConference } from './video/WebRTC';
 
 import { ChatComponent } from './Components/Chat';
