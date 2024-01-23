@@ -5,6 +5,7 @@ import { GameScene } from './Page/Game';
 import { Player } from './characters/Player';
 import { startVideoConference } from './video/WebRTC';
 import { pauseGame } from './PhaserGame';
+import { shareScreen } from './Page/ScreenShare';
 
 const tagManager = TagManager.getInstance();
 
@@ -203,6 +204,33 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
                 onClick: () => {
                     const game = window.game.scene.keys.GameScene as GameScene;
                     createBlackBoard(game, mainDiv);
+                } 
+            });
+
+            const screenButton = tagManager.createButton({
+                parent: buttonDiv,
+                id: 'gameContainer',
+                text: 'Screen Share',
+                width: 140,
+                height: 60,
+                styles: {
+                    'background-color': Color.primary,
+                    'color': Color.white,
+                    'border-radius': '10px',
+                    'margin-top': '20px',
+                    'font-weight': '600',
+                    'font-size': '20px',
+                    'border': 'none',
+                },
+                hoverStyles: { 
+                    'cursor': 'pointer', 
+                    'color': Color.black,
+                    'background-color': Color.yellow,
+                    'font-size': '22px',
+                },
+                onClick: () => {
+                    const game = window.game.scene.keys.GameScene as GameScene;
+                    shareScreen(game, game.currentPlayer, mainDiv );
                 } 
             });
 
