@@ -4,7 +4,11 @@ import { createBlackBoard } from './Page/BlackBoard';
 import { GameScene } from './Page/Game';
 import { Player } from './characters/Player';
 import { startVideoConference } from './video/WebRTC';
+
 import { ChatComponent } from './Components/Chat';
+import { pauseGame } from './PhaserGame';
+import { shareScreen } from './Page/ScreenShare';
+
 
 const tagManager = TagManager.getInstance();
 
@@ -139,9 +143,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             'font-size': '22px',
         },
         onClick: () => {
-
             createGameScreen();
-            
         }
     });
 
