@@ -123,9 +123,9 @@ export class MyRoom extends Room<MyRoomState> {
     // create Player instance
     const player = new Player();
 
-    // place Player at a random position
-    player.x = (Math.random() * mapWidth);
-    player.y = (Math.random() * mapHeight);
+
+    player.x = 3.5;
+    player.y = 18.5;
     player.texture = options.playerTexture;
 
     // place player in the map of players by its sessionId

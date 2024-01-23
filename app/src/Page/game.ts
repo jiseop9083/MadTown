@@ -1,11 +1,14 @@
 import { Scene } from "phaser";
 import { Client, Room } from "colyseus.js";
+import { Keyboard, Keys } from "../types/KeyboardState";
 
 import { createCharacterAnims } from "../anims/CharacterAnims";
-import { Player } from "../characters/Player";
+import { Player } from "../Objects/Player";
 import { PlayerState } from "../types/PlayerState";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";
+import { Tile } from "../Objects/Tiles/Tile";
+import { GroundTile, ChairTile, BlackBoardTile } from "../Objects/Tiles";
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -27,9 +30,10 @@ export class GameScene extends Scene {
   }
 
 
-  playerGroup: Phaser.Physics.Arcade.Group;
+  
   preload() {
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
+    this.load.spritesheet(`tile_set`, `${HTTP_SERVER_URI}/image/tiles-tile_map.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet(`avatar1_idle`, `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar1_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar1_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 });
@@ -42,37 +46,48 @@ export class GameScene extends Scene {
     this.load.spritesheet('avatar2_right', `${HTTP_SERVER_URI}/image/player-character2_right.png`, { frameWidth: 32, frameHeight: 32 }); 
     this.load.spritesheet('avatar2_left', `${HTTP_SERVER_URI}/image/player-character2_left.png`, { frameWidth: 32, frameHeight: 32 }); 
 
-    
     this.load.spritesheet('avatar3_idle', `${HTTP_SERVER_URI}/image/player-character3_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar3_front', `${HTTP_SERVER_URI}/image/player-character3_front.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar3_back', `${HTTP_SERVER_URI}/image/player-character3_back.png`, { frameWidth: 32, frameHeight: 32 }); 
     this.load.spritesheet('avatar3_right', `${HTTP_SERVER_URI}/image/player-character3_right.png`, { frameWidth: 32, frameHeight: 32 }); 
     this.load.spritesheet('avatar3_left', `${HTTP_SERVER_URI}/image/player-character3_left.png`, { frameWidth: 32, frameHeight: 32 }); 
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
-    this.cursorKeys = this.input.keyboard.createCursorKeys();
+    this.cursor = {
+      ...this.input.keyboard.createCursorKeys(),
+      ...(this.input.keyboard.addKeys('W,S,A,D,E') as Keyboard),
+    }
     
   }
 
   client = new Client(`${SERVER_URI}`);
 
-  // process.env.SERVER_URI
   room: Room;
 
+  ojbectGroup: Phaser.Physics.Arcade.Group; // 오브젝트 그룹(책상 등등)
+  playerGroup: Phaser.Physics.Arcade.Group;
   playerEntities: {[sessionId: string]: any} = {};
+  currentPlayer: Player;
+  remoteRef: Phaser.GameObjects.Rectangle;
+  map: Phaser.Tilemaps.Tilemap;
+  backgroundLayer: Phaser.Tilemaps.TilemapLayer;
+  groundLayer: Phaser.Tilemaps.TilemapLayer;
+  metaDataLayer: Phaser.Tilemaps.TilemapLayer;
+
+  //cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+  cursor: Keys;
+  chatText: Phaser.GameObjects.Text;
   
   inputPayload = {
       left: false,
       right: false,
       up: false,
       down: false,
+      A: false,
+      W: false,
+      S: false,
+      D: false,
+      E: false,
   };
-
-  currentPlayer: Player
-  // currentPlayer: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
-  remoteRef: Phaser.GameObjects.Rectangle;
-
-  cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
-  chatText: Phaser.GameObjects.Text;
 
   async create() {
     console.log("Joining room...");
@@ -81,33 +96,50 @@ export class GameScene extends Scene {
 
       createCharacterAnims(this.anims);
 
-      // this.input.keyboard.on('keydown-ENTER', () => {
-      //   const message = prompt("Enter your message:");
-      //   if (message) {
-      //     // Send chat message to the server with the player's position
-      //     this.room.send("chat", {"chat": {
-      //       message,
-      //       position: { x: this.currentPlayer.x, y: this.currentPlayer.y }
-      //     }});
-      //   }
-      // });
 
-      const map = this.make.tilemap({ key: 'classroom' });
-      console.log(map);
-      const tileset = map.addTilesetImage('tile_map', 'tiles');
-      const backgroundLayer = map.createLayer("background", tileset, 0,0);
-      const groundLayer = map.createLayer("ground", tileset, 0,0);
-      const metaDataLayer = map.createLayer("metaData", tileset, 0,0);
+      this.map = this.make.tilemap({ key: 'classroom' });
+      const tileset = this.map.addTilesetImage('tile_map', 'tiles');
+      this.backgroundLayer = this.map.createLayer("background", tileset, 0,0);
+      this.groundLayer = this.map.createLayer("ground", tileset, 0,0);
+      this.metaDataLayer = this.map.createLayer("metaData", tileset, 0,0);
      
-      // groundLayer.setCollisionBetween(0, 4);
-      // this.physics.world.enable(groundLayer);
+      this.ojbectGroup = this.physics.add.group();
+      this.physics.world.enable(this.ojbectGroup); 
+      const layerList = [this.backgroundLayer, this.groundLayer, this.metaDataLayer];
+      for(let k = 0; k < layerList.length; k++){
+        let layer = layerList[k];
+        for(let i = 0; i < 18; i++){
+          for(let j = 0; j < 20; j++){
+            let tile = layer.getTileAt(i, j);
+            if(tile){
+              if(tile.index === 3){ // chair
+                this.ojbectGroup.add(new ChairTile(this, i, j, 'avatar1_idle', tile.index));
+              } else if(tile.index == 1 || tile.index == 8) { // table
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
+              } else if(tile.index == 2 || tile.index == 7) { // computer
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
+              } else if(19 <= tile.index && tile.index <= 21) { // blackboard
+                this.ojbectGroup.add(new BlackBoardTile(this, i, j, 'avatar1_idle', tile.index));
+              } else if(tile.index == 1) { // wall
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
+              } else {
+                console.log("pass");
+              }
+            }
+            
+          }
+        }
+      }
+      
+      
+      
       this.chatText = this.add.text(0, 0, '', {
         fontSize: '16px',
         color: '#ffffff',
       });
 
       // 맵의 크기를 이미지의 크기로 조절
-      this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -139,56 +171,40 @@ export class GameScene extends Scene {
       });
 
       this.playerGroup = this.physics.add.group();
+      
       this.physics.world.enable(this.playerGroup);
 
-      this.physics.add.collider(this.playerGroup, this.playerGroup, (player1 : Player, player2 : Player) => {
-        const overlapX = player1.x - player2.x;
-        const overlapY = player1.y - player2.y;
-    
-        // 겹침을 방지하기 위한 이동값 설정
-        const moveDistance = 0.1;
-    
-        if (overlapX > 0) {
-            player1.x += moveDistance;
-        } else {
-            player1.x -= moveDistance;
-        }
-    
-        if (overlapY > 0) {
-            player1.y += moveDistance;
-        } else {
-            player1.y -= moveDistance;
-        }
-    });
     
       this.room.state.players.onAdd((player, sessionId) => {
-        console.log(player.texture);
-        const entity = new Player(this, player.x, player.y, `avatar${player.texture}`, sessionId, 1);
+        const entity = new Player(this, player.x, player.y, player.texture, sessionId, 1);
+        entity.setOrigin(0, 0);
         this.playerGroup.add(entity);
+
         this.playerEntities[sessionId] = entity;
-        entity.setCollideWorldBounds(true);
+
+
+        
 
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
+          this.currentPlayer.setCollideWorldBounds(true);
+          this.physics.add.collider(this.currentPlayer.playerContainer, this.ojbectGroup, (p: any, tile: any) => {
+            tile.onCollision(this.currentPlayer);
+          });
+          this.physics.add.collider(this.currentPlayer, this.ojbectGroup, (p: any, tile: any) => {
+            // TODO: seperate to tile id
+            tile.openEvent(this, this.inputPayload.E);
+          });
           this.cameras.main.startFollow(this.currentPlayer);
-
           this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
           this.cameras.main.setZoom(2.5);
-          this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
-          // this is being used for debug only
-          entity.debugMode(true);
-
+          this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
           player.onChange(() => {
-              this.remoteRef.x = player.x;
-              this.remoteRef.y = player.y;
+              
               entity.setData('serverX', player.x);
               entity.setData('serverY', player.y);
           });
         } else {
-            // all remote players are here!
-            // (same as before, we are going to interpolate remote players)
-           
             player.onChange(() => {
                 entity.setData('serverX', player.x);
                 entity.setData('serverY', player.y)
@@ -230,54 +246,56 @@ export class GameScene extends Scene {
     while (this.elapsedTime >= this.fixedTimeStep) {
         this.elapsedTime -= this.fixedTimeStep;
         this.fixedTick(time, this.fixedTimeStep);
-
-        this.physics.world.collide(this.playerGroup);
     }
   }
 
   fixedTick(time, timeStep) {
-    //
-    // paste the previous `update()` implementation here!
     // skip loop if not connected with room yet.
     if (!this.room) { return; }
     // send input to the server
     const velocity = 2;
-    this.inputPayload.left = this.cursorKeys.left.isDown;
-    this.inputPayload.right = this.cursorKeys.right.isDown;
-    this.inputPayload.up = this.cursorKeys.up.isDown;
-    this.inputPayload.down = this.cursorKeys.down.isDown;
+    this.inputPayload.left = this.cursor.left.isDown;
+    this.inputPayload.right = this.cursor.right.isDown;
+    this.inputPayload.up = this.cursor.up.isDown;
+    this.inputPayload.down = this.cursor.down.isDown;
+    this.inputPayload.E = this.cursor.E.isDown;
+    this.inputPayload.A = this.cursor.A.isDown;
+    this.inputPayload.S = this.cursor.S.isDown;
+    this.inputPayload.D = this.cursor.D.isDown;
+    this.inputPayload.W = this.cursor.W.isDown;
     let isTap = false;
-    if (this.inputPayload.left) {
-      this.currentPlayer.changeAnims(PlayerState.LEFT);
-      this.currentPlayer.x -= velocity;
-      isTap = true;
-    } else if (this.inputPayload.right) {
-      this.currentPlayer.changeAnims(PlayerState.RIGHT);
-        this.currentPlayer.x += velocity;
+    this.currentPlayer.previousX = this.currentPlayer.x;
+    this.currentPlayer.previousY = this.currentPlayer.y;
+    if(!this.currentPlayer.isSit){
+      if (this.inputPayload.left) {
+        this.currentPlayer.changeAnims(PlayerState.LEFT);
+        this.currentPlayer.x -= velocity;
         isTap = true;
+      } else if (this.inputPayload.right) {
+        this.currentPlayer.changeAnims(PlayerState.RIGHT);
+          this.currentPlayer.x += velocity;
+          isTap = true;
+      }
+      if (this.inputPayload.up) {
+          this.currentPlayer.changeAnims(PlayerState.UP);
+          this.currentPlayer.y -= velocity;
+          isTap = true;
+      } else if (this.inputPayload.down) {
+          this.currentPlayer.changeAnims(PlayerState.DOWN);
+          this.currentPlayer.y += velocity;
+          isTap = true;
+      }
     }
-    if (this.inputPayload.up) {
-        this.currentPlayer.changeAnims(PlayerState.UP);
-        this.currentPlayer.y -= velocity;
-        isTap = true;
-    } else if (this.inputPayload.down) {
-        this.currentPlayer.changeAnims(PlayerState.DOWN);
-        this.currentPlayer.y += velocity;
-        isTap = true;
-    }
+    this.currentPlayer.update();
     if(!isTap)
       this.currentPlayer.changeAnims(PlayerState.IDLE);
-    // type, data
-    // TODO: 0 -> input
     this.room.send("input", {
       "input": this.inputPayload
     });
     for (let sessionId in this.playerEntities) {
-      // do not interpolate the current player
       if (sessionId === this.room.sessionId) {
         continue;
       }
-      // interpolate all player entities
       const entity = this.playerEntities[sessionId];
       const { serverX, serverY } = entity.data.values;
       const dx = serverX - entity.x;
@@ -296,6 +314,5 @@ export class GameScene extends Scene {
       entity.x = Phaser.Math.Linear(entity.x, serverX, 0.8);
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.8);
     }
-    //
   }
 }
