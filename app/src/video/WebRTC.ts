@@ -51,7 +51,7 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
         parent: mainContainer,
         styles: {
           'display': 'flex',
-          'flex-direction': 'column',
+          'flex-direction': 'row',
           'margin': '16px',
         }
       });

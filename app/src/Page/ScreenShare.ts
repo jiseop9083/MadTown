@@ -1,107 +1,145 @@
-// import { Scene } from 'phaser';
-// import { TagManager } from '../util/TagManager';
-// import { Player } from '../characters/Player';
+import { Scene } from 'phaser';
+import { TagManager } from '../util/TagManager';
+import { Player } from '../characters/Player';
 
-// const tagManager = TagManager.getInstance();
+const tagManager = TagManager.getInstance();
 
-// export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDivElement) => {
-//     let screenContainer : HTMLDivElement;
+export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDivElement) => {
+  let screenContainer: HTMLDivElement;
+    
+  const handleIceScreen = (data) => {
+    console.log('sent screen candidate');
+    scene.room.send("screen_ice", { candidate: data.candidate});
+  }
 
-//     const handleIce = (data) => {
-//         console.log('sent candiate');
-//         scene.room.send("ice", {ice: data.candiate, roomName: player.roomName});
-//     }
+  const handleAddStreamScreen = (data) => {
+    
+    console.log('Data stream:', data.stream);
+  
+    const peersStream =  tagManager.createVideo({
+        parent: screenContainer,
+        width: 50,
+        height: 40,
+        srcObject: data.stream,
+        autoplay: true,
+        playsInline: true,
+        styles: {
+          'border-radius': '30px',
+          'margin-top': '20px',
+        }
+      })
 
-//     const handleAddStream = (data) => {
-//         const peersStream =  tagManager.createVideo({
-//           parent: screenContainer,
-//           width: 250,
-//           height: 200,
-//           srcObject: data.stream,
-//           autoplay: true,
-//           playsInline: true,
-//         })
-//       };
+      console.log('peersStream:', peersStream);
 
-//     navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' } })
-//         .then((stream) => {
-//             const mainContainer = tagManager.createDiv({
-//                 parent: mainDiv,
-//                 styles: {
-//                   'display': 'flex',
-//                   'flex-direction': 'row',
-//                 }
-//               });
-//         }
+  };  
 
-//     )
+    navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' } })
+    .then(async (stream) => {
+    console.log('my', stream);
+    const mainContainer = tagManager.createDiv({
+      parent: mainDiv,
+      styles: {
+        'position': 'absolute',
+        'width': '50%',
+        'height': '50%',
+        'background-color': 'rgba(0, 0, 0, 0.4)',
+        'z-index': '1000',
+        'border-radius': '10px',
+      }
+    });
 
+    screenContainer = tagManager.createDiv({
+      parent: mainContainer,
+      styles: {
+        'display': 'flex',
+        'flex-direction': 'column',
+        'margin': '16px',
+      }
+    });
 
-//     const peerConnection = new RTCPeerConnection();
-//     peerConnection.addEventListener("icecandidate", handleAddStream);
-//     stream.getTracks().forEach(track) => {
-//       peerConnection.addTrack(track, await displayStream);
-//     });
+    const myScreen = tagManager.createVideo({
+      parent: screenContainer,
+      srcObject: stream,
+      width: 50,
+      height: 40,
+      playsInline: true,
+      autoplay: true,
+      styles: {
+        'margin-top': '20px',
+        'border-radius': '30px',
+      }
+    });
 
-//     const offer = await peerConnection.createOffer();
-//     await peerConnection.setLocalDescription(offer);
+    const stopSharingButton = tagManager.createButton({
+      parent: mainContainer,
+      text: 'Stop Sharing',
+      onClick: async () => {
+        stream.getTracks().forEach((track: { stop: () => any; }) => track.stop());
+        peerConnection.close();
+        removeVideoElement(screenContainer);
+        tagManager.setVisible(mainContainer, false);
+      }
+    });
 
-//     peerConnection.onicecandidate = (event) => {
-//       if (event.candidate) {
-//         sendIceCandidateToRemote(event.candidate);
-//       }
-//     };
+    const peerConnection = new RTCPeerConnection();
+    peerConnection.addEventListener("icecandidate", handleIceScreen);
+    peerConnection.addEventListener("addstream", handleAddStreamScreen);
 
-//     const stopSharingButton = document.createElement('button');
-//     stopSharingButton.innerText = 'Stop Sharing';
-//     stopSharingButton.addEventListener('click', async () => {
-//       (await displayStream).getTracks().forEach((track) => track.stop());
-//       peerConnection.close();
-//       mainDiv.removeChild(stopSharingButton);
-//       removeVideoElement();
-//     });
+    stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
 
-//     mainDiv.appendChild(stopSharingButton); // 화면 공유 중지
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
 
-//     peerConnection.oniceconnectionstatechange = async () => {
-//       if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'failed') {
-//         (await displayStream).getTracks().forEach((track) => track.stop());
-//         mainDiv.removeChild(stopSharingButton);
-//         removeVideoElement();
-//       }
-//     };
+    scene.room.send("offer_screen", { offer: offer });
 
-//     // 화면을 표시하기 위한 비디오 요소 생성 및 연결
-//     const videoElement = document.createElement('video');
-//     videoElement.srcObject = displayStream;
-//     videoElement.autoplay = true;
-//     videoElement.style.width = '100%';
-//     videoElement.style.height = 'auto';
-//     mainDiv.appendChild(videoElement);
-// }
+    scene.room.onMessage("offer_screen", async (messageData) => {
+        console.log("received the screen offer");
+        if (messageData.playerId === scene.currentPlayer.playerId) return;
+      
+        console.log(peerConnection.signalingState);
+        await peerConnection.setRemoteDescription(messageData.offer);
+      
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+      
+        console.log("sent the screen answer");
+        scene.room.send("answer_screen", { answer: answer });
+    });
+      
+    scene.room.onMessage("answer_screen", (messageData) => {
+        console.log("receive the screen answer");
+        if (messageData.playerId === scene.currentPlayer.playerId) return;
+      
+        peerConnection.setRemoteDescription(messageData.answer);
+    });
+      
 
-// function removeVideoElement() {
-//   const videoElement = document.querySelector('video');
-//   if (videoElement) {
-//     videoElement.remove();
-//   }
-// }
+    scene.room.onMessage("screen_ice", async (messageData) => {
+        if(messageData.playerId == scene.currentPlayer.playerId)
+            return;
+      console.log("receive screen candidate");
+      await peerConnection.addIceCandidate(messageData.ice);
+    });
 
-// function sendIceCandidateToRemote(candidate: RTCIceCandidate) {
-//   const signalingChannel = new WebSocket('ws://143.248.225.156:2567');
+    peerConnection.oniceconnectionstatechange = async () => {
+      if (peerConnection.iceConnectionState === 'closed' || peerConnection.iceConnectionState === 'failed') {
+        stream.getTracks().forEach((track) => track.stop());
+        mainDiv.removeChild(stopSharingButton);
+        removeVideoElement(screenContainer); // Pass the container to remove
+      }
+    };
+  }) 
+  .catch((error) => {
+    console.error("Error accessing display media:", error);
+  })
+}
 
-//   signalingChannel.addEventListener('open', () => {
-//     // Candidate 메시지를 상대방에게 전송
-//     signalingChannel.send(JSON.stringify({ type: 'ice-candidate', candidate }));
-//   });
-
-//   // 연결이 닫힐 때 WebSocket 리소스 해제
-//   signalingChannel.addEventListener('close', () => {
-//     signalingChannel.close();
-//   });
-
-//   // 에러 처리
-//   signalingChannel.addEventListener('error', (error) => {
-//     console.error('WebSocket error:', error);
-//   });
-// }
+function removeVideoElement(container: HTMLDivElement) {
+    const videoElements = container.querySelectorAll('video');
+    videoElements.forEach((videoElement) => {
+      // Stop the tracks before removing the video element
+      const tracks = videoElement.srcObject.getTracks();
+      tracks.forEach((track) => track.stop());
+      videoElement.remove();
+    });
+  }  
