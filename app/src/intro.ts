@@ -6,8 +6,8 @@ import { Player } from './Objects/Player';
 import { startVideoConference } from './video/WebRTC';
 
 import { ChatComponent } from './Components/Chat';
-import { pauseGame } from './PhaserGame';
 import { shareScreen } from './Page/ScreenShare';
+import { Coffee } from './Page/Coffee';
 
 
 const tagManager = TagManager.getInstance();
@@ -206,23 +206,64 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             id: 'gameContainer',
             styles: {
                 'display': 'flex',
-                'flex-direction': 'row-reverse',
+                'flex-direction': 'column',
             }
         });
 
+        const gameAndChat = tagManager.createDiv({
+            parent: gameContainer,
+            id: 'gameAndChat',
+            styles: {
+                'display': 'flex',
+                'flex-direction': 'row-reverse',
+                'margin-top': '50px', 
+            } 
+        });
+
         
-        ChatComponent(gameContainer);
+        ChatComponent(gameAndChat);
 
         const buttonDiv = tagManager.createDiv({
             parent: gameContainer,
             styles: {
                 'display': 'flex',
-                'flex-direction': 'column',
+                'flex-direction': 'row',
                 'margin-top': '50px',
                 'margin-left': '50px',
-                'justify-content': 'space-around'
+                'justify-content': 'space-around',
             }
-            
+        });
+
+        const miniGameButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'miniGameButton',
+            text: 'mini Game',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                tagManager.setVisible(miniGameButton, false);
+                tagManager.setVisible(videoButton, false);
+                tagManager.setVisible(boardButton, false);
+                tagManager.setVisible(shareButton, false);
+                RPSButtonDiv(buttonDiv);
+                const game = window.game.scene.keys.GameScene as GameScene;
+                game.scene.start('Coffee');
+            } 
         });
 
         const videoButton = tagManager.createButton({
@@ -248,8 +289,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             },
             onClick: () => {
                 const game = window.game.scene.keys.GameScene as GameScene;
-
-                startVideoConference(game, game.currentPlayer, mainDiv );
+                startVideoConference(game, game.currentPlayer, mainDiv);
             }
         });
 
@@ -308,6 +348,9 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             } 
         });
 
+
+        
+
         import('./PhaserGame').then((indexModule) => {
             tagManager.setVisible(mainContainer, false);
             window['currentIndex'] = currentIndex;
@@ -316,9 +359,126 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
         }).catch((error) => {
             console.error('Failed to load index.ts:', error);
         });
+    }
 
-        
+    const RPSButtonDiv = (buttonDiv: HTMLDivElement) => {
+        const gameStartButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'gameStartButton',
+            text: 'Start',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                const game = window.game.scene.keys.Coffee as Coffee;
+                if(game.gameTimer == 0){
+                    game.room.send("gameStart", {
+                        "gameStart": 60 * 3,
+                      });
+                }
+                
+            } 
+        });
 
-        
+        const rockButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'rock',
+            text: 'Rock',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                const game = window.game.scene.keys.Coffee as Coffee;
+                game.room.send("setState", {
+                    "state": 1,
+                });
+            }
+        });
+
+        const scissorButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'scissors',
+            text: 'Scissors',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                const game = window.game.scene.keys.Coffee as Coffee;
+                game.room.send("setState", {
+                    "state": 2,
+                });
+            } 
+        });
+
+        const paperButton = tagManager.createButton({
+            parent: buttonDiv,
+            id: 'paper',
+            text: 'Paper',
+            width: 140,
+            height: 60,
+            styles: {
+                'background-color': Color.primary,
+                'color': Color.white,
+                'border-radius': '10px',
+                'margin-top': '20px',
+                'font-weight': '600',
+                'font-size': '20px',
+                'border': 'none',
+            },
+            hoverStyles: { 
+                'cursor': 'pointer', 
+                'color': Color.black,
+                'background-color': Color.yellow,
+                'font-size': '22px',
+            },
+            onClick: () => {
+                const game = window.game.scene.keys.Coffee as Coffee;
+                game.room.send("setState", {
+                    "state": 3,
+                });
+            } 
+        });
     }
 };

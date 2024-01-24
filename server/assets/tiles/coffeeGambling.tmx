@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="7" height="7" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" name="coffee_map" tilewidth="32" tileheight="32" tilecount="8" columns="4">
+  <image source="coffee_map.png" width="128" height="64"/>
+ </tileset>
+ <layer id="1" name="background" width="7" height="7">
+  <data encoding="csv">
+1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,
+1,1,1,5,1,1,1,
+1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,
+1,1,1,1,1,1,1
+</data>
+ </layer>
+ <layer id="2" name="hand" width="7" height="7">
+  <data encoding="csv">
+0,0,3221225474,0,3221225474,0,0,
+0,0,0,0,0,0,0,
+2684354562,0,0,0,0,0,1610612738,
+0,0,0,0,0,0,0,
+2684354562,0,0,0,0,0,1610612738,
+0,0,0,0,0,0,0,
+0,0,2,0,2,0,0
+</data>
+ </layer>
+</map>

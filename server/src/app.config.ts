@@ -9,6 +9,7 @@ const fs = require('fs');
  * Import your Room files
  */
 import { MyRoom } from "./rooms/MyRoom";
+import { CoffeeRoom } from "./rooms/CoffeeRoom";
 
 export default config({
 
@@ -17,6 +18,7 @@ export default config({
          * Define your room handlers:
          */
         gameServer.define('my_room', MyRoom);
+        gameServer.define('coffee_room', CoffeeRoom);
 
     },
 

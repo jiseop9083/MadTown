@@ -94,13 +94,13 @@ export class GameScene extends Scene {
   async create() {
     console.log("Joining room...");
 
-    var backgroundSND=this.sound.add('backgroundSound');
-    backgroundSND.loop = true;
-    backgroundSND.play();
+    
 
     try {
       this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1});
-
+      let backgroundSND=this.sound.add('backgroundSound');
+      backgroundSND.loop = true;
+      backgroundSND.play();
       createCharacterAnims(this.anims);
 
 

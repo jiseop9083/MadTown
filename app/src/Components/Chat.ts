@@ -25,11 +25,12 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
 
     const messageContainer = tagManager.createDiv({
         parent: chatContainer,
-        width: 330,
+        width: 270,
         id: 'messageContainer',
         styles: {
             'display':'flex',
             'flex-direction': 'column',
+            'overflow': 'auto',
         },
     });
 

@@ -1,0 +1,47 @@
+{ "compressionlevel":-1,
+ "height":7,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 5, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+         "height":7,
+         "id":1,
+         "name":"background",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":11,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "columns":4,
+         "firstgid":1,
+         "image":"coffee_map.png",
+         "imageheight":64,
+         "imagewidth":128,
+         "margin":0,
+         "name":"coffee_map",
+         "spacing":0,
+         "tilecount":8,
+         "tileheight":32,
+         "tilewidth":32
+        }],
+ "tilewidth":32,
+ "type":"map",
+ "version":"1.10",
+ "width":11
+}
