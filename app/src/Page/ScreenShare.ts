@@ -47,7 +47,7 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
       parent: mainContainer,
       styles: {
         'display': 'flex',
-        'flex-direction': 'column',
+        'flex-direction': 'row',
         'margin': '16px',
       }
     });
@@ -55,13 +55,14 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
     const screen = tagManager.createVideo({
       parent: screenContainer,
       srcObject: stream,
-      width: 350,
-      height: 280,
+      width: 400,
+      height: 320,
       playsInline: true,
       autoplay: true,
       styles: {
         'margin-top': '20px',
         'border-radius': '30px',
+        'marin-right' : '20px',
       }
     });
 
@@ -88,7 +89,7 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
 
     const idButton = tagManager.createButton({
         parent: inputContainer,
-        text: "입장",
+        text: "Enter",
         width: 60,
         height: 45,
         onClick: (event) => {
@@ -104,16 +105,26 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
           'font-size': '20px',
         }
       });
-
+ 
     const stopSharingButton = tagManager.createButton({
       parent: mainContainer,
-      text: 'Stop Sharing',
+      text: 'Exit',
+      width: 60,
+      height: 45,
       onClick: async () => {
         stream.getTracks().forEach((track: { stop: () => any; }) => track.stop());
         peerConnection.close();
         removeVideoElement(screenContainer);
         tagManager.setVisible(mainContainer, false);
-      }
+      },
+      styles: {
+        'position': 'absolute',
+        'right': '30px',
+        'bottom': '30px',
+        'border-radius': '5px',
+        'margin-left': '10px',
+        'font-size': '20px',
+      },
     });
 
     const peerConnection = new RTCPeerConnection();
