@@ -168,6 +168,8 @@ export class GameScene extends Scene {
         if (distance < 100) {
           
           const messageContainer = document.getElementById('messageContainer');
+          //messageContainer.style.overflowY = 'auto';
+
           tagManager.createDiv({
             parent: messageContainer,
             text:  `Player ${playerId}: ${message}`,
@@ -178,10 +180,13 @@ export class GameScene extends Scene {
               'margin-top': '5px',
               'font-weight': 300,
             }
-          })
+          });
+
           this.chatText.setText(this.chatText.text +  `Player ${playerId}: ${message}\n`);
           // Scroll to the bottom if there is a scroll
           this.chatText.setScrollFactor(0, 0);
+
+          messageContainer.scrollTop = messageContainer.scrollHeight;
         }
       });
 
@@ -272,11 +277,6 @@ export class GameScene extends Scene {
         this.fixedTick(time, this.fixedTimeStep);
     }
 
-    // const playerNameText = this.children.getChildren().find(child => child instanceof Phaser.GameObjects.Text) as Phaser.GameObjects.Text;
-    // playerNameText.x = (this.currentPlayer.x -playerNameText.width) / 2;
-    // playerNameText.y = (this.currentPlayer.y - playerNameText.height) / 2;
-
-    // console.log(playerNameText.displayWidth, playerNameText.displayHeight);
     this.postUpdate()
   }
 

@@ -30,6 +30,8 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
         styles: {
             'display':'flex',
             'flex-direction': 'column',
+            'height': '410px',
+            'overflow-y':'auto',
         },
     });
 
