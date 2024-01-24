@@ -1,3 +1,4 @@
+import { Coffee } from "./Page/Coffee";
 import { GameScene } from "./Page/Game";
 import Color from "./types/Color";
 
@@ -13,7 +14,7 @@ const config: Phaser.Types.Core.GameConfig = {
     width: MAP_WIDTH,
     height: MAP_HEIGHT,
     backgroundColor: Color.transparent,
-    parent: 'gameContainer',
+    parent: 'gameAndChat',
     physics: { default: "arcade",
         arcade: {
             debug: true,
@@ -21,12 +22,8 @@ const config: Phaser.Types.Core.GameConfig = {
         } 
     },
     pixelArt: true,
-    scene: [ GameScene ],
+    scene: [ GameScene, Coffee ],
 };
-
-// instantiate the game
-//const game = new Phaser.Game(config);
-
 
 
 export function createGame() {
