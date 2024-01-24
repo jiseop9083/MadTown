@@ -75,20 +75,50 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
         id: 'title'
     });
 
-    const imageContainer = tagManager.createDiv({
+    const buttonContainer = tagManager.createDiv({
         parent: popupContainer,
+        id: 'selectors',
+        styles: {
+            'display': 'flex',
+            'flex-direction': 'row',
+            'justify-content': 'center',
+            'align-items': 'center',
+        }
+    })
+
+    const leftButton = tagManager.createButton({
+        parent: buttonContainer,
+        width: 50,
+        height: 30,
+        text: '<',
+        styles: {
+            'background-color': Color.secondary,
+            'color': Color.white,
+            'border-radius': '10px',
+            'margin-top': '20px',
+            'font-weight': '600',
+            'font-size': '20px',
+        },
+        hoverStyles: { 
+            'cursor': 'pointer', 
+            'color': Color.black,
+            'background-color': Color.yellow,
+            'font-size': '22px',
+        },
+        onClick: () => {
+            currentIndex = (currentIndex - 1 + characters.length) % characters.length;
+            characterImg.src = characters[currentIndex].src;
+            characterImg.alt = characters[currentIndex].name;
+        }
+    });
+
+    const imageContainer = tagManager.createDiv({
+        parent: buttonContainer,
         id: 'avatars',
         styles: {
             position: 'relative',
         },
     });
-
-    
-
-    const buttonContainer = tagManager.createDiv({
-        parent: popupContainer,
-        id: 'selectors'
-    })
 
     const characterImg = tagManager.createImage({
         parent: imageContainer,
@@ -99,27 +129,39 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
         alt: characters[currentIndex].name,
     });
 
-    const leftButton = tagManager.createButton({
-        parent: buttonContainer,
-        width: 50,
-        height: 30,
-        text: '<',
-        onClick: () => {
-            currentIndex = (currentIndex - 1 + characters.length) % characters.length;
-            characterImg.src = characters[currentIndex].src;
-            characterImg.alt = characters[currentIndex].name;
-        }
-    });
-
     const rightButton = tagManager.createButton({
         parent: buttonContainer,
         width: 50,
         height: 30,
         text: '>',
+        styles: {
+            'background-color': Color.secondary,
+            'color': Color.white,
+            'border-radius': '10px',
+            'margin-top': '20px',
+            'font-weight': '600',
+            'font-size': '20px',
+        },
+        hoverStyles: { 
+            'cursor': 'pointer', 
+            'color': Color.black,
+            'background-color': Color.yellow,
+            'font-size': '22px',
+        },
         onClick: () => {
             currentIndex = (currentIndex + 1) % characters.length;
             characterImg.src = characters[currentIndex].src;
             characterImg.alt = characters[currentIndex].name;
+        }
+    });
+
+    const nameInput = tagManager.createInput({
+        parent: popupContainer,
+        placeholder: "Enter name",
+        styles: {
+            'display': 'flex',
+            'border-radius': '10px',
+            'font-size': '20px',
         }
     });
 
@@ -217,7 +259,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             parent: gameContainer,
             styles: {
                 'display': 'flex',
-                'flex-direction': 'column',
+                'flex-direction': 'row',
                 'margin-top': '50px',
                 'margin-left': '50px',
                 'justify-content': 'space-around'

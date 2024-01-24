@@ -21,6 +21,7 @@ const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 600;
 
 declare var currentIndex: number;
+// declare var 
 
 
 // custom scene class
