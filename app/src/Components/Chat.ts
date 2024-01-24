@@ -59,6 +59,23 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
         },
     });
 
+    chatInput.addEventListener('keyup', (event) => {
+        if(event.key == 'Enter') {
+            sendMessage();
+        }
+    })
+
+    const sendMessage = () => {
+        const game = window.game.scene.keys.GameScene as GameScene;
+        game.room.send("chat", {
+            "chat": {
+                message: chatInput.value,
+                position: { x: game.currentPlayer.x, y: game.currentPlayer.y }
+            }
+        });
+        chatInput.value = '';
+    }
+
     const chatButton = tagManager.createButton({
         parent: chatInputContainer,
         height: 30,
@@ -86,10 +103,5 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
             'color': Color.black,
             'font-size': '18px',
         }
-    });
-
-    
-    
-
-    
+    });    
 }
