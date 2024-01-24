@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { PlayerState } from '../types/PlayerState';
+import Color from '../types/Color';
 
 declare var currentIndex: number;
 
@@ -18,6 +19,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     isSit: boolean;
     sitCounter: number;
     isCollision: boolean;
+    playerNameText: Phaser.GameObjects.Text;
     // private playerDialogBubble: Phaser.GameObjects.Container;
   
     constructor(
@@ -25,6 +27,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         x: number,
         y: number,
         texture: string, // player animation sprite name
+        name: string,
         id: string,
         size: number = 1,
         frame?: string | number
@@ -33,6 +36,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         scene.add.existing(this);
         this.playerId = id;
+        this.name = name;
+        this.playerNameText = scene.add.text(0, 0, name, {
+            fontSize: '12px',
+            color: Color.white,
+        });
+
         this.playerTexture = `avatar${texture}`;
         this.playerNumber = Number(texture) * 6 - 1;
         this.anims.play(`${this.playerTexture}_idle`);
@@ -54,7 +63,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         this.playerContainer.x = this.x + this.size * 0.26;
         this.playerContainer.y = this.y + this.size * 0.13;
-        
+        this.playerNameText.x= this.x + 16 - this.playerNameText.displayWidth/2 ;
+        this.playerNameText.y = this.y - 10;
     }
     
 

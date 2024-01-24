@@ -21,16 +21,15 @@ const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 600;
 
 declare var currentIndex: number;
-
+declare var playerName: string;
 
 // custom scene class
 export class GameScene extends Scene {
   constructor() {
-    super({ key: 'GameScene' });
+    super({ key: 'GameScene' })
   }
 
   preload() {
-    // this.load.audio("backgroundSound", require('../../assets/sounds/background_music.mp3'));
     this.load.audio("backgroundSound", `${HTTP_SERVER_URI}/audio/sounds-background_music.mp3`)
 
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
@@ -99,10 +98,10 @@ export class GameScene extends Scene {
     backgroundSND.play();
 
     try {
-      this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1});
+      this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1, name: playerName});
+      console.log(playerName);
 
       createCharacterAnims(this.anims);
-
 
       this.map = this.make.tilemap({ key: 'classroom' });
       const tileset = this.map.addTilesetImage('tile_map', 'tiles');
@@ -169,6 +168,8 @@ export class GameScene extends Scene {
         if (distance < 100) {
           
           const messageContainer = document.getElementById('messageContainer');
+          //messageContainer.style.overflowY = 'auto';
+
           tagManager.createDiv({
             parent: messageContainer,
             text:  `Player ${playerId}: ${message}`,
@@ -179,10 +180,13 @@ export class GameScene extends Scene {
               'margin-top': '5px',
               'font-weight': 300,
             }
-          })
+          });
+
           this.chatText.setText(this.chatText.text +  `Player ${playerId}: ${message}\n`);
           // Scroll to the bottom if there is a scroll
           this.chatText.setScrollFactor(0, 0);
+
+          messageContainer.scrollTop = messageContainer.scrollHeight;
         }
       });
 
@@ -201,12 +205,16 @@ export class GameScene extends Scene {
 
     
       this.room.state.players.onAdd((player, sessionId) => {
-        const entity = new Player(this, player.x, player.y, player.texture, sessionId, 1);
+        const entity = new Player(this, player.x, player.y, player.texture, player.name, sessionId, 1);
         entity.setOrigin(0, 0);
         this.playerGroup.add(entity);
         this.playerEntities[sessionId] = entity;
         entity.setCollideWorldBounds(true);
 
+        console.log(player.name);
+
+        
+        
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
           
@@ -222,7 +230,7 @@ export class GameScene extends Scene {
           this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
           this.cameras.main.setZoom(2.5);
           this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-          
+
           player.onChange(() => {
               entity.setData('serverX', player.x);
               entity.setData('serverY', player.y);
@@ -268,7 +276,8 @@ export class GameScene extends Scene {
         this.elapsedTime -= this.fixedTimeStep;
         this.fixedTick(time, this.fixedTimeStep);
     }
-    this.postUpdate();
+
+    this.postUpdate()
   }
 
   fixedTick(time, timeStep) {
