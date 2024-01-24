@@ -29,6 +29,9 @@ export class GameScene extends Scene {
   }
 
   preload() {
+    // this.load.audio("backgroundSound", require('../../assets/sounds/background_music.mp3'));
+    this.load.audio("backgroundSound", `${HTTP_SERVER_URI}/audio/sounds-background_music.mp3`)
+
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
     this.load.spritesheet(`tile_set`, `${HTTP_SERVER_URI}/image/tiles-tile_map.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet(`santa`, `${HTTP_SERVER_URI}/image/player-mountainUp.png`, { frameWidth: 32, frameHeight: 32 });
@@ -88,6 +91,11 @@ export class GameScene extends Scene {
 
   async create() {
     console.log("Joining room...");
+
+    var backgroundSND=this.sound.add('backgroundSound');
+    backgroundSND.loop = true;
+    backgroundSND.play();
+
     try {
       this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1});
 

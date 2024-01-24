@@ -29,6 +29,19 @@ export default config({
         //     allowedHeaders: 'Content-Type, Authorization, Access-Control-Allow-Origin', // 허용할 헤더
         // }
         
+        app.get('/audio/:audioName', (req, res) => {
+            const audioName = req.params.audioName;
+            const resultArray = audioName.split('-');
+            const joinedString = resultArray.join('/');
+            const audioPath = path.join(__dirname, '../assets', joinedString);
+            const audioStream = require('fs').createReadStream(audioPath);
+        
+            res.setHeader('Content-Type', 'audio/mpeg'); // 또는 'audio/ogg' 등으로 변경
+        
+            audioStream.pipe(res);
+        });
+        
+
         app.get('/image/:imageName', (req, res) => {
             
             const imageName = req.params.imageName;
