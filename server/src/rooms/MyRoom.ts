@@ -27,6 +27,16 @@ export class MyRoom extends Room<MyRoomState> {
       player.inputQueue.push({input: data.input, isCollision: data.isCollision, position: data.position});
     });  
 
+    this.onMessage("sit", (client, data) => {
+      this.broadcast("sit", {
+        playerId: client.sessionId,
+        tileId: data.tileId,
+        setSit: data.setSit,
+        hasPlayer: data.hasPlayer,
+      });
+    });
+
+
     this.onMessage("join_room", (client, data) => {
       
       this.broadcast("join_room", {

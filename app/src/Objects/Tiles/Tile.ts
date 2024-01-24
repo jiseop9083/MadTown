@@ -5,6 +5,7 @@ import { GameScene } from "../../Page/Game";
 export class Tile extends Phaser.GameObjects.Sprite {
     scene: Phaser.Scene;
     size: number;
+    tileType: number;
     id: number;
     indexX: number;
     indexY: number;
@@ -13,12 +14,14 @@ export class Tile extends Phaser.GameObjects.Sprite {
         x: number,
         y: number,
         texture: string, 
+        tileType: number,
         id: number
     ) {
         super(scene, x * 32 + 16, y * 32 + 16, texture);
         this.indexX = x;
         this.indexY = y;
         this.scene = scene;
+        this.tileType = tileType;
         this.id = id;
         //this.setAlpha(0);
     };

@@ -12,16 +12,17 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
 
 
   const handleIce = (data) => {
-    console.log('sent candiate');
     scene.room.send("ice", {ice: data.candiate, roomName: player.roomName});
   };
 
   const handleAddStream = (data) => {
+    const videoStream = data.streams.find(stream => stream.getVideoTracks().length > 0);
+    console.log(videoStream);
     const peersStream =  tagManager.createVideo({
       parent: videoContainer,
       width: 350,
       height: 280,
-      srcObject: data.stream,
+      srcObject: videoStream,
       autoplay: true,
       playsInline: true,
       styles: {
@@ -34,7 +35,7 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
 
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then((stream) => {
-
+      console.log(stream);
       const mainContainer = tagManager.createDiv({
         parent: mainDiv,
         styles: {
@@ -141,7 +142,8 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
       peerConnection.addEventListener("icecandidate", handleIce);
 
       // 아마 addIceCandidate 호출 전에 이벤트가 넘어가서 그러지 않을ㄲ?
-      peerConnection.addEventListener("addstream", handleAddStream);
+      peerConnection.ontrack = handleAddStream;
+      //peerConnection.addEventListener("addstream", handleAddStream);
       stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
 
       scene.room.onMessage("join_room", async (messageData) => {
@@ -184,8 +186,14 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
           return;
         console.log("receive candidate");
         await peerConnection.addIceCandidate(messageData.ice);
-
+        
       });
+
+      // peerConnection.oniceconnectionstatechange = async () => {
+      //   stream.getTracks().forEach((track) => track.stop());
+      //   mainDiv.removeChild(stopSharingButton);
+      //   removeVideoElement(screenContainer);
+      // };
   })
   .catch((error) => {
     console.error('Error accessing webcam and/or microphone:', error);

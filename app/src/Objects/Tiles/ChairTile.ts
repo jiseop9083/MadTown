@@ -4,20 +4,20 @@ import { GameScene } from "../../Page/Game";
 
             
 export class ChairTile extends Tile {
-    scene: Phaser.Scene;
     size: number;
-    id: number;
     overlapTile: Phaser.GameObjects.Sprite;
+    hasPlayer: boolean;
   
     constructor(
         scene: Phaser.Scene,
         x: number,
         y: number,
         texture: string, 
+        tileType: number,
         id: number
     ) {
-        super(scene, x, y, texture, id);
-        
+        super(scene, x, y, texture, tileType, id);
+        this.hasPlayer = false;
     };
 
     onCollision(player: Player) {
@@ -26,24 +26,57 @@ export class ChairTile extends Tile {
     };
 
     openEvent(scene: GameScene, isPress: boolean) {
-        if(!this.overlapTile){
-            let tile = scene.groundLayer.getTileAt(this.indexX, this.indexY);
-            this.overlapTile = scene.add.sprite(tile.pixelX + 16, tile.pixelY + 16, 'tile_set', scene.currentPlayer.playerNumber);
-            this.overlapTile.setAlpha(0);
-        }
         if(!isPress)
             return;
-        if(!scene.currentPlayer.isSit && scene.currentPlayer.sitCounter <= 0){
+        if(!scene.currentPlayer.isSit && scene.currentPlayer.sitCounter <= 0 && !this.hasPlayer){
             scene.currentPlayer.isSit = true;
-            scene.currentPlayer.setAlpha(0);
-            this.overlapTile.setAlpha(1);
+            // scene.currentPlayer.setAlpha(0);
+            // this.overlapTile.setAlpha(1);
+            scene.room.send("sit", {
+                "tileId": this.id,
+                "setSit": true,
+                "hasPlayer": true,
+              });
+            this.hasPlayer = true;
             scene.currentPlayer.sitCounter = 60;
-        } else if(scene.currentPlayer.isSit && scene.currentPlayer.sitCounter <= 0) {
+        } else if(scene.currentPlayer.isSit && scene.currentPlayer.sitCounter <= 0 && this.hasPlayer) {
             scene.currentPlayer.isSit = false;
-            scene.currentPlayer.sitCounter = 60;
-            scene.currentPlayer.setAlpha(1);
-            this.overlapTile.setAlpha(0);
-            
+            scene.room.send("sit", {
+                "tileId": this.id,
+                "setSit": false,
+                "hasPlayer": false,
+              });
+            this.hasPlayer = false;
+            scene.currentPlayer.sitCounter = 60
         }
     };
+
+    setSit(playerNumber: number, playerId: string){
+        if(!this.overlapTile){
+            let tile = this.scene.groundLayer.getTileAt(this.indexX, this.indexY);
+            this.overlapTile = this.scene.add.sprite(tile.pixelX + 16, tile.pixelY + 16, 'tile_set', playerNumber);
+            this.overlapTile.setAlpha(0);
+        }
+        this.overlapTile.setAlpha(1);
+        // player invisible
+        for (let sessionId in this.scene.playerEntities) {
+            if (sessionId == playerId) {
+              const entity = this.scene.playerEntities[sessionId];
+              entity.setAlpha(0);
+              continue;
+            }
+        }
+    }
+
+    setStand(playerNumber: number, playerId: string){
+        this.overlapTile.setAlpha(0);
+        // player invisible
+        for (let sessionId in this.scene.playerEntities) {
+            if (sessionId == playerId) {
+              const entity = this.scene.playerEntities[sessionId];
+              entity.setAlpha(1);
+              continue;
+            }
+        }
+    }
 }
