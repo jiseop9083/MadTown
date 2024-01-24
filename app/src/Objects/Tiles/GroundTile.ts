@@ -21,6 +21,7 @@ export class GroundTile extends Tile {
         super.onCollision(player);
         player.x = player.previousX;
         player.y = player.previousY;
+
     };
 
     openEvent(scene: GameScene, isPress: boolean) {};

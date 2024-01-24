@@ -24,7 +24,7 @@ export class MyRoom extends Room<MyRoomState> {
 
     this.onMessage("input", (client, data) => {
       const player = this.state.players.get(client.sessionId);
-      player.inputQueue.push(data.input);
+      player.inputQueue.push({input: data.input, isCollision: data.isCollision, position: data.position});
     });  
 
     this.onMessage("join_room", (client, data) => {
@@ -118,21 +118,25 @@ export class MyRoom extends Room<MyRoomState> {
   fixedTick(deltaTime: number){
     const velocity = 2;
     this.state.players.forEach(player => {
-        let input: any;
+        let inputData: any;
 
         // dequeue player inputs
-        while (input = player.inputQueue.shift()) {
-            if (input.left) {
+        while (inputData = player.inputQueue.shift()) {
+            if(inputData.isCollision){
+              player.x = inputData.position.x;
+              player.y = inputData.position.y;
+            }
+            if (inputData.input.left) {
                 player.x -= velocity;
 
-            } else if (input.right) {
+            } else if (inputData.input.right) {
                 player.x += velocity;
             }
 
-            if (input.up) {
+            if (inputData.input.up) {
                 player.y -= velocity;
 
-            } else if (input.down) {
+            } else if (inputData.input.down) {
                 player.y += velocity;
             }
         }
@@ -149,8 +153,8 @@ export class MyRoom extends Room<MyRoomState> {
     const player = new Player();
 
 
-    player.x = 3.5;
-    player.y = 18.5;
+    player.x = 112;
+    player.y = 592;
     player.texture = options.playerTexture;
 
     // place player in the map of players by its sessionId

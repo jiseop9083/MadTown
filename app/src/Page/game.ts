@@ -7,7 +7,6 @@ import { Player } from "../Objects/Player";
 import { PlayerState } from "../types/PlayerState";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";
-import { Tile } from "../Objects/Tiles/Tile";
 import { GroundTile, ChairTile, BlackBoardTile } from "../Objects/Tiles";
 
 const dotenv = require('dotenv');
@@ -29,11 +28,10 @@ export class GameScene extends Scene {
     super({ key: 'GameScene' });
   }
 
-
-  
   preload() {
     this.load.image('tiles', `${HTTP_SERVER_URI}/image/tiles-tile_map.png`);
     this.load.spritesheet(`tile_set`, `${HTTP_SERVER_URI}/image/tiles-tile_map.png`, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet(`santa`, `${HTTP_SERVER_URI}/image/player-mountainUp.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet(`avatar1_idle`, `${HTTP_SERVER_URI}/image/player-character1_idle.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar1_front', `${HTTP_SERVER_URI}/image/player-character1_front.png`, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('avatar1_back', `${HTTP_SERVER_URI}/image/player-character1_back.png`, { frameWidth: 32, frameHeight: 32 });
@@ -73,7 +71,6 @@ export class GameScene extends Scene {
   groundLayer: Phaser.Tilemaps.TilemapLayer;
   metaDataLayer: Phaser.Tilemaps.TilemapLayer;
 
-  //cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   cursor: Keys;
   chatText: Phaser.GameObjects.Text;
   
@@ -113,18 +110,19 @@ export class GameScene extends Scene {
             let tile = layer.getTileAt(i, j);
             if(tile){
               if(tile.index === 3){ // chair
-                this.ojbectGroup.add(new ChairTile(this, i, j, 'avatar1_idle', tile.index));
+                this.ojbectGroup.add(new ChairTile(this, i, j, 'tile_set', tile.index));
               } else if(tile.index == 1 || tile.index == 8) { // table
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
               } else if(tile.index == 2 || tile.index == 7) { // computer
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
               } else if(19 <= tile.index && tile.index <= 21) { // blackboard
-                this.ojbectGroup.add(new BlackBoardTile(this, i, j, 'avatar1_idle', tile.index));
-              } else if(tile.index == 1) { // wall
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'avatar1_idle', tile.index));
-              } else {
-                console.log("pass");
-              }
+                this.ojbectGroup.add(new BlackBoardTile(this, i, j, 'tile_set', tile.index));
+              } else if(tile.index == 15) { // wall
+                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
+              } 
+              // else {
+              //   console.log("pass");
+              // }
             }
             
           }
@@ -152,6 +150,7 @@ export class GameScene extends Scene {
           position.y
         );
         if (distance < 100) {
+          
           const messageContainer = document.getElementById('messageContainer');
           tagManager.createDiv({
             parent: messageContainer,
@@ -171,7 +170,6 @@ export class GameScene extends Scene {
       });
 
       this.playerGroup = this.physics.add.group();
-      
       this.physics.world.enable(this.playerGroup);
 
     
@@ -179,17 +177,15 @@ export class GameScene extends Scene {
         const entity = new Player(this, player.x, player.y, player.texture, sessionId, 1);
         entity.setOrigin(0, 0);
         this.playerGroup.add(entity);
-
         this.playerEntities[sessionId] = entity;
-
-
-        
+        entity.setCollideWorldBounds(true);
 
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
-          this.currentPlayer.setCollideWorldBounds(true);
+          
           this.physics.add.collider(this.currentPlayer.playerContainer, this.ojbectGroup, (p: any, tile: any) => {
             tile.onCollision(this.currentPlayer);
+            this.currentPlayer.isCollision = true;
           });
           this.physics.add.collider(this.currentPlayer, this.ojbectGroup, (p: any, tile: any) => {
             // TODO: seperate to tile id
@@ -199,18 +195,19 @@ export class GameScene extends Scene {
           this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
           this.cameras.main.setZoom(2.5);
           this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+          
           player.onChange(() => {
-              
               entity.setData('serverX', player.x);
               entity.setData('serverY', player.y);
           });
         } else {
+            console.log("other", entity.x, entity.y);
             player.onChange(() => {
                 entity.setData('serverX', player.x);
-                entity.setData('serverY', player.y)
+                entity.setData('serverY', player.y);
+                console.log("entity", player.x, player.y);
             });
         }
-
       });
       
     } catch (e) {
@@ -241,12 +238,12 @@ export class GameScene extends Scene {
   update(time: number, delta: number): void {
     // skip loop if not connected with room yet.
     if (!this.currentPlayer) { return; }
-
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
         this.elapsedTime -= this.fixedTimeStep;
         this.fixedTick(time, this.fixedTimeStep);
     }
+    this.postUpdate();
   }
 
   fixedTick(time, timeStep) {
@@ -290,16 +287,26 @@ export class GameScene extends Scene {
     if(!isTap)
       this.currentPlayer.changeAnims(PlayerState.IDLE);
     this.room.send("input", {
-      "input": this.inputPayload
+      "input": this.inputPayload,
+      "isCollision": this.currentPlayer.isCollision,
+      "position": {x: this.currentPlayer.x, y: this.currentPlayer.y}
     });
     for (let sessionId in this.playerEntities) {
       if (sessionId === this.room.sessionId) {
+        const entity = this.playerEntities[sessionId];
+        entity.update();
+        const { serverX, serverY } = entity.data.values;
+        const dx = serverX - entity.x;
+        const dy = serverY - entity.y;
         continue;
       }
       const entity = this.playerEntities[sessionId];
+      
       const { serverX, serverY } = entity.data.values;
       const dx = serverX - entity.x;
       const dy = serverY - entity.y;
+      console.log("other", serverX, serverY);
+      entity.update();
       if(dx > 0){
         entity.changeAnims(PlayerState.RIGHT);
       } else if(dx < 0){
@@ -314,5 +321,9 @@ export class GameScene extends Scene {
       entity.x = Phaser.Math.Linear(entity.x, serverX, 0.8);
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.8);
     }
+  }
+
+  postUpdate() {
+    this.currentPlayer.isCollision = false;
   }
 }
