@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Color from '../types/Color';
 
 const go = [
     {x: 0, y: -16},
@@ -26,6 +27,7 @@ export class GamblePlayer extends Phaser.Physics.Arcade.Sprite {
         y: number,
         texture: string, // player animation sprite name
         id: string,
+        name: string,
         number: number,
         frame?: string | number
     ) {
@@ -40,7 +42,11 @@ export class GamblePlayer extends Phaser.Physics.Arcade.Sprite {
         this.playerId = id;
         this.basicX = x;
         this.basicY = y;
-        
+        this.playerName = scene.add.text(this.x, this.y - 10, name, {
+            fontSize: '12px',
+            color: Color.white,
+        });
+        this.playerName.setOrigin(0.5, 0.5);
     };
 
     changeState(state) {
