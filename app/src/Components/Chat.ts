@@ -32,6 +32,7 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
             'flex-direction': 'column',
             'height': '410px',
             'overflow-y':'auto',
+            'word-wrap': 'break-word',
         },
     });
 
