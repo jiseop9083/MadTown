@@ -33,10 +33,9 @@ const clouds = [
 
 let currentIndex = 0;
 let cloudImages = [];
+let playerName = '';
 
-export const createIntro = (mainDiv : HTMLDivElement) => {
-    
-  
+export const createIntro = (mainDiv : HTMLDivElement) => { 
     const mainContainer = tagManager.createDiv({
         parent: mainDiv,
         styles: {
@@ -80,7 +79,6 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
         id: 'selectors',
         styles: {
             'display': 'flex',
-            'flex-direction': 'row',
             'justify-content': 'center',
             'align-items': 'center',
         }
@@ -185,11 +183,15 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             'font-size': '22px',
         },
         onClick: () => {
-            createGameScreen();
+            playerName = nameInput.value;
+
+            if(playerName) {
+                createGameScreen();
+            } else {
+                alert('Please enter your name');
+            }
         }
     });
-
-
 
     const styles = document.createElement('style');
     // 함수를 사용하여 구름 이미지 생성
@@ -353,6 +355,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
         import('./PhaserGame').then((indexModule) => {
             tagManager.setVisible(mainContainer, false);
             window['currentIndex'] = currentIndex;
+            window['playerName'] = playerName;
             indexModule.createGame();
 
         }).catch((error) => {

@@ -169,6 +169,7 @@ export class MyRoom extends Room<MyRoomState> {
     player.x = 112;
     player.y = 592;
     player.texture = options.playerTexture;
+    player.name = options.name;
 
     // place player in the map of players by its sessionId
     // (client.sessionId is unique per connection!)
