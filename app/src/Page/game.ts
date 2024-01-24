@@ -7,7 +7,8 @@ import { Player } from "../Objects/Player";
 import { PlayerState } from "../types/PlayerState";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";
-import { GroundTile, ChairTile, BlackBoardTile } from "../Objects/Tiles";
+import { GroundTile, ChairTile, BlackBoardTile, Tile } from "../Objects/Tiles";
+
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -64,6 +65,7 @@ export class GameScene extends Scene {
   ojbectGroup: Phaser.Physics.Arcade.Group; // 오브젝트 그룹(책상 등등)
   playerGroup: Phaser.Physics.Arcade.Group;
   playerEntities: {[sessionId: string]: any} = {};
+  tileEntities: {[tileId: number]: Tile} = {};
   currentPlayer: Player;
   remoteRef: Phaser.GameObjects.Rectangle;
   map: Phaser.Tilemaps.Tilemap;
@@ -103,6 +105,7 @@ export class GameScene extends Scene {
       this.ojbectGroup = this.physics.add.group();
       this.physics.world.enable(this.ojbectGroup); 
       const layerList = [this.backgroundLayer, this.groundLayer, this.metaDataLayer];
+      let tileId = 1;
       for(let k = 0; k < layerList.length; k++){
         let layer = layerList[k];
         for(let i = 0; i < 18; i++){
@@ -110,19 +113,25 @@ export class GameScene extends Scene {
             let tile = layer.getTileAt(i, j);
             if(tile){
               if(tile.index === 3){ // chair
-                this.ojbectGroup.add(new ChairTile(this, i, j, 'tile_set', tile.index));
+                this.tileEntities[tileId] = new ChairTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(tile.index == 1 || tile.index == 8) { // table
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
+                this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(tile.index == 2 || tile.index == 7) { // computer
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
+                this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(19 <= tile.index && tile.index <= 21) { // blackboard
-                this.ojbectGroup.add(new BlackBoardTile(this, i, j, 'tile_set', tile.index));
+                this.tileEntities[tileId] = new BlackBoardTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(tile.index == 15) { // wall
-                this.ojbectGroup.add(new GroundTile(this, i, j, 'tile_set', tile.index));
+                this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
               } 
               // else {
               //   console.log("pass");
               // }
+              tileId++;
             }
             
           }
@@ -169,6 +178,17 @@ export class GameScene extends Scene {
         }
       });
 
+      this.room.onMessage("sit", (messageData) => {
+        const { playerId, tileId, setSit, hasPlayer } = messageData;
+        const changeTile = this.tileEntities[tileId] as ChairTile;
+        console.log(playerId);
+        changeTile.hasPlayer = hasPlayer;
+        if(setSit)
+          changeTile.setSit(this.playerEntities[playerId].playerNumber, playerId);
+        else if(!setSit)
+          changeTile.setStand(this.playerEntities[playerId].playerNumber, playerId);
+      });
+
       this.playerGroup = this.physics.add.group();
       this.physics.world.enable(this.playerGroup);
 
@@ -205,7 +225,6 @@ export class GameScene extends Scene {
             player.onChange(() => {
                 entity.setData('serverX', player.x);
                 entity.setData('serverY', player.y);
-                console.log("entity", player.x, player.y);
             });
         }
       });
@@ -295,9 +314,6 @@ export class GameScene extends Scene {
       if (sessionId === this.room.sessionId) {
         const entity = this.playerEntities[sessionId];
         entity.update();
-        const { serverX, serverY } = entity.data.values;
-        const dx = serverX - entity.x;
-        const dy = serverY - entity.y;
         continue;
       }
       const entity = this.playerEntities[sessionId];
@@ -305,7 +321,6 @@ export class GameScene extends Scene {
       const { serverX, serverY } = entity.data.values;
       const dx = serverX - entity.x;
       const dy = serverY - entity.y;
-      console.log("other", serverX, serverY);
       entity.update();
       if(dx > 0){
         entity.changeAnims(PlayerState.RIGHT);

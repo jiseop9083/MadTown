@@ -5,18 +5,17 @@ import { createBlackBoard } from "../../Page/BlackBoard";
 
             
 export class BlackBoardTile extends Tile {
-    scene: Phaser.Scene;
     size: number;
-    id: number;
   
     constructor(
         scene: Phaser.Scene,
         x: number,
         y: number,
         texture: string, 
+        tileType: number,
         id: number
     ) {
-        super(scene, x , y + 0.25, texture, id);
+        super(scene, x , y + 0.25, texture, tileType, id);
         this.setDisplaySize(32, 16);
     };
 
