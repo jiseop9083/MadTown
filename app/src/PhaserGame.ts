@@ -30,7 +30,6 @@ const config: Phaser.Types.Core.GameConfig = {
 
 
 export function createGame() {
-
   try{
     phaserGame = new Phaser.Game(config)
     ;(window as any).game = phaserGame
