@@ -69,7 +69,6 @@ export class ChairTile extends Tile {
     }
 
     setStand(playerNumber: number, playerId: string){
-        console.log("ddd");
         this.overlapTile.setAlpha(0);
         // player invisible
         for (let sessionId in this.scene.playerEntities) {

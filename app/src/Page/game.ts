@@ -181,7 +181,6 @@ export class GameScene extends Scene {
       this.room.onMessage("sit", (messageData) => {
         const { playerId, tileId, setSit, hasPlayer } = messageData;
         const changeTile = this.tileEntities[tileId] as ChairTile;
-        console.log(playerId);
         changeTile.hasPlayer = hasPlayer;
         if(setSit)
           changeTile.setSit(this.playerEntities[playerId].playerNumber, playerId);
@@ -221,7 +220,6 @@ export class GameScene extends Scene {
               entity.setData('serverY', player.y);
           });
         } else {
-            console.log("other", entity.x, entity.y);
             player.onChange(() => {
                 entity.setData('serverX', player.x);
                 entity.setData('serverY', player.y);
