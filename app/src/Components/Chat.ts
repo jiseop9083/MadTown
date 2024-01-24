@@ -30,7 +30,8 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
         styles: {
             'display':'flex',
             'flex-direction': 'column',
-            'overflow': 'auto',
+            'height': '410px',
+            'overflow-y':'auto',
         },
     });
 
@@ -57,6 +58,23 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
             'border-radius': '10px',
         },
     });
+
+    chatInput.addEventListener('keyup', (event) => {
+        if(event.key == 'Enter') {
+            sendMessage();
+        }
+    })
+
+    const sendMessage = () => {
+        const game = window.game.scene.keys.GameScene as GameScene;
+        game.room.send("chat", {
+            "chat": {
+                message: chatInput.value,
+                position: { x: game.currentPlayer.x, y: game.currentPlayer.y }
+            }
+        });
+        chatInput.value = '';
+    }
 
     const chatButton = tagManager.createButton({
         parent: chatInputContainer,
@@ -85,10 +103,5 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
             'color': Color.black,
             'font-size': '18px',
         }
-    });
-
-    
-    
-
-    
+    });    
 }

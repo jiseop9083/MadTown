@@ -91,6 +91,7 @@ export class MyRoom extends Room<MyRoomState> {
       console.log("offer screen : ", data);
       this.broadcast("offer_screen", {
         playerId: client.sessionId,
+        roomName: data.roomName,
         offer: data.offer,
       });
     });
@@ -98,6 +99,7 @@ export class MyRoom extends Room<MyRoomState> {
     this.onMessage("answer_screen", (client, data) => {
       this.broadcast("answer_screen", {
         playerId: client.sessionId,
+        roomName: data.roomName,
         answer: data.answer,
       });
     });
@@ -105,6 +107,7 @@ export class MyRoom extends Room<MyRoomState> {
     this.onMessage("screen_ice", (client, data) => {
       this.broadcast("screen_ice", {
         playerId: client.sessionId,
+        roomName: data.roomName,
         candidate: data.candidate,
       });
     });
@@ -166,6 +169,7 @@ export class MyRoom extends Room<MyRoomState> {
     player.x = 112;
     player.y = 592;
     player.texture = options.playerTexture;
+    player.name = options.name;
 
     // place player in the map of players by its sessionId
     // (client.sessionId is unique per connection!)
