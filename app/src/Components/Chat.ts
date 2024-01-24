@@ -82,12 +82,7 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
         width: 50,
         text: 'send',
         onClick: () => {
-            const game = window.game.scene.keys.GameScene as GameScene;
-            game.room.send("chat", {"chat": {
-                message: chatInput.value,
-                position: { x: game.currentPlayer.x, y: game.currentPlayer.y }
-            }});
-            chatInput.value = '';
+            sendMessage();
         },
         styles: {
             'background-color': Color.primary,

@@ -72,16 +72,15 @@ export class CoffeeRoom extends Room<CoffeeRoomState> {
 
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
-    // create Player instance
     const gamblePlayer = new GamblePlayer();
     gamblePlayer.number = this.clientNumber;
     gamblePlayer.state = 0;
     gamblePlayer.x = (this.playerPos[this.clientNumber].x + 2) * 32 + 16;
     gamblePlayer.y = this.playerPos[this.clientNumber].y * 32 + 16;
+    gamblePlayer.name = options.name;
     this.state.gamblePlayers.set(client.sessionId, gamblePlayer);
 
-    // place player in the map of players by its sessionId
-    // (client.sessionId is unique per connection!)
+
     this.state.gamblePlayers.set(client.sessionId, gamblePlayer);
 
     this.clientNumber++;

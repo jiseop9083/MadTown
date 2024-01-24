@@ -10,7 +10,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     playerState = PlayerState.IDLE;
     playerNumber: number;
     roomName: string;
-    playerName: Phaser.GameObjects.Text;
     playerContainer: Phaser.GameObjects.Container;
     scene: Phaser.Scene;
     previousX: number;

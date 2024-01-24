@@ -20,8 +20,8 @@ const tagManager = TagManager.getInstance();
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 600;
 
-declare var currentIndex: number;
-declare var playerName: string;
+declare let currentIndex: number;
+declare let playerName: string;
 
 // custom scene class
 export class GameScene extends Scene {
@@ -76,7 +76,6 @@ export class GameScene extends Scene {
   metaDataLayer: Phaser.Tilemaps.TilemapLayer;
 
   cursor: Keys;
-  chatText: Phaser.GameObjects.Text;
   
   inputPayload = {
       left: false,
@@ -145,12 +144,6 @@ export class GameScene extends Scene {
         }
       }
       
-      
-      
-      this.chatText = this.add.text(0, 0, '', {
-        fontSize: '16px',
-        color: '#ffffff',
-      });
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -170,9 +163,9 @@ export class GameScene extends Scene {
           const messageContainer = document.getElementById('messageContainer');
           //messageContainer.style.overflowY = 'auto';
 
-          tagManager.createDiv({
+          const textMsg = tagManager.createDiv({
             parent: messageContainer,
-            text:  `Player ${playerId}: ${message}`,
+            text:  `${this.playerEntities[playerId].playerNameText.text}: ${message}`,
             styles: {
               'font-size': '14px',
               'color': Color.gray50,
@@ -181,11 +174,11 @@ export class GameScene extends Scene {
               'font-weight': 300,
             }
           });
-
-          this.chatText.setText(this.chatText.text +  `Player ${playerId}: ${message}\n`);
-          // Scroll to the bottom if there is a scroll
-          this.chatText.setScrollFactor(0, 0);
-
+          if(playerId == this.currentPlayer.playerId){
+            textMsg.style.textAlign = 'right';
+            textMsg.style.color = Color.yellow;
+            textMsg.textContent = `${message}`;
+          }
           messageContainer.scrollTop = messageContainer.scrollHeight;
         }
       });
