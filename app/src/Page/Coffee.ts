@@ -37,14 +37,17 @@ export class Coffee extends Scene {
     gameTimer: number;
     textTimer: Phaser.GameObjects.Text;
     waringText: Phaser.GameObjects.Text;
+    closeButton: Phaser.GameObjects.Text;
     rock: HTMLElement;
     scissors: HTMLElement;
     paper: HTMLElement;
     notSelectPerson: string;
+    backgroundSND: Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound
+
 
     preload() {
         try {
-            // this.load.audio("backgroundSound", require('../../assets/sounds/background_music.mp3'));
+            this.load.audio("minigame_music", `${HTTP_SERVER_URI}/audio/sounds-minigame_music.mp3`)
             this.load.image('coffe_tiles', `${HTTP_SERVER_URI}/image/tiles-coffee_map.png`);
             this.load.spritesheet(`coffe_tile_set`, `${HTTP_SERVER_URI}/image/tiles-coffee_map.png`, { frameWidth: 32, frameHeight: 32 });
             this.load.tilemapTiledJSON('coffeeGambling', `${HTTP_SERVER_URI}/json/tiles-coffeeGambling.json`);
@@ -66,6 +69,9 @@ export class Coffee extends Scene {
             this.map = this.make.tilemap({ key: 'coffeeGambling' });
             const tileset = this.map.addTilesetImage('coffee_map', 'coffe_tiles');
             this.backgroundLayer = this.map.createLayer("background", tileset, 0,0);
+            this.backgroundSND=this.sound.add('minigame_music');
+            this.backgroundSND.loop = true;
+            this.backgroundSND.play();
             this.gameTimer = 0;
             this.loserNumber = 0;
             
@@ -87,6 +93,17 @@ export class Coffee extends Scene {
                 fontSize: '12px',
             });
             this.waringText.setOrigin(0.5, 0.5);
+            this.closeButton = this.add.text(32 * 10.5, 32 * 6.5, "ⓧ", {
+                color: Color.red,
+                fontSize: '20px',
+            });
+            this.closeButton.setOrigin(0.5, 0.5);
+            this.closeButton.setInteractive();
+            this.closeButton.on('pointerdown', () => {
+                this.backgroundSND.pause();
+                this.scene.start('GameScene');
+            });
+
 
             this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
             this.cameras.main.setZoom(2.675);
