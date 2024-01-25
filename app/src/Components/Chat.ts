@@ -10,6 +10,7 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
     const chatContainer = tagManager.createDiv({
         parent: gameContainer,
         width: 330,
+        id: 'chatContainer',
         styles: {
             'background-color': Color.transparent,
             'color': Color.white,
@@ -52,6 +53,7 @@ export const ChatComponent = (gameContainer: HTMLElement) => {
     const chatInput = tagManager.createInput({
         parent: chatInputContainer,
         height: 30,
+        id: 'chatInput',
         placeholder: ' send message to nearby people ➤',
         styles: {
             'flex': '1',
