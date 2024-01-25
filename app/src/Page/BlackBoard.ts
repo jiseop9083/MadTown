@@ -19,6 +19,7 @@ export const createBlackBoard = (scene: Scene, mainDiv: HTMLDivElement) => {
     isLoaded = true;
 
     mainContainer = tagManager.createDiv({parent: mainDiv,
+        id: "blackBoard",
         styles: {
             'position': 'absolute',
             'top': '0px',

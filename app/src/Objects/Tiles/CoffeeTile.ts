@@ -1,10 +1,11 @@
-import { Tile } from "./Tile";
+import { GroundTile } from "./GroundTile";
 import { Player } from "../Player";
 import { GameScene } from "../../Page/Game";
-import { createBlackBoard } from "../../Page/BlackBoard";
+import { shareScreen } from "../../Page/ScreenShare";
+import { startMiniGame } from "../../Components/MiniGame";
 
             
-export class BlackBoardTile extends Tile {
+export class CoffeeTile extends GroundTile {
     size: number;
   
     constructor(
@@ -15,8 +16,7 @@ export class BlackBoardTile extends Tile {
         tileType: number,
         id: number
     ) {
-        super(scene, x , y + 0.25, texture, tileType, id);
-        this.setDisplaySize(32, 16);
+        super(scene, x, y, texture, tileType, id);
     };
 
     onCollision(player: Player) {
@@ -29,8 +29,7 @@ export class BlackBoardTile extends Tile {
         if(!isPress) return;
         if(scene.eventTimer == 0){
             scene.eventTimer = 120;
-            const mainDiv = document.getElementById('main') as HTMLDivElement;
-            createBlackBoard(scene, mainDiv);
+            startMiniGame();
         }
     }
 

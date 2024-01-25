@@ -2,7 +2,6 @@ import { TagManager } from './util/TagManager';
 import Color from './types/Color';
 import { createBlackBoard } from './Page/BlackBoard';
 import { GameScene } from './Page/Game';
-import { Player } from './Objects/Player';
 import { startVideoConference } from './video/WebRTC';
 
 import { ChatComponent } from './Components/Chat';
@@ -303,12 +302,14 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
                 'font-size': '22px',
             },
             onClick: () => {
+                
                 tagManager.setVisible(miniGameButton, false);
                 tagManager.setVisible(videoButton, false);
                 tagManager.setVisible(boardButton, false);
                 tagManager.setVisible(shareButton, false);
                 RPSButtonDiv(buttonDiv);
                 const game = window.game.scene.keys.GameScene as GameScene;
+                game.backgroundSND.pause();
                 game.scene.start('Coffee');
             } 
         });
@@ -336,6 +337,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             },
             onClick: () => {
                 const game = window.game.scene.keys.GameScene as GameScene;
+                game.addInputListener();
                 startVideoConference(game, game.currentPlayer, mainDiv);
             }
         });
@@ -369,7 +371,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
 
         const shareButton = tagManager.createButton({
             parent: buttonDiv,
-            id: 'boardButton',
+            id: 'shareButton',
             text: 'Screen Share',
             width: 140,
             height: 60,
@@ -390,7 +392,7 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
             },
             onClick: () => {
                 const game = window.game.scene.keys.GameScene as GameScene;
-
+                game.addInputListener();
                 shareScreen(game, game.currentPlayer, mainDiv);
             } 
         });

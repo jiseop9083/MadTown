@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { TagManager } from '../util/TagManager';
 import { Player } from '../Objects/Player';
+import { GameScene } from './Game';
 
 const tagManager = TagManager.getInstance();
 
@@ -79,6 +80,7 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
         parent: inputContainer,
         width: 200,
         height: 40,
+        id: 'screenShareInput',
         placeholder: "room name",
         styles: {
           'display': 'flex',
@@ -186,6 +188,8 @@ export const shareScreen = async (scene: Scene, player: Player, mainDiv: HTMLDiv
         removeVideoElement(screenContainer); // Pass the container to remove
       }
     };
+    const game = window.game.scene.keys.GameScene as GameScene;
+    game.addInputListener();
   } catch (error) {
     console.error("Error accessing display media:", error);
   }

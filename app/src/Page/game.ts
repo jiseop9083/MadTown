@@ -7,14 +7,14 @@ import { Player } from "../Objects/Player";
 import { PlayerState } from "../types/PlayerState";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";
-import { GroundTile, ChairTile, BlackBoardTile, Tile } from "../Objects/Tiles";
+import { GroundTile, ChairTile, BlackBoardTile, ComputerTile, CoffeeTile, Tile } from "../Objects/Tiles";
 
 
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
-const SERVER_URI = process.env.MOCK_SERVER_URI;
+const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
+const SERVER_URI = process.env.SERVER_URI;
 const tagManager = TagManager.getInstance();
 
 const MAP_WIDTH = 1000;
@@ -75,9 +75,16 @@ export class GameScene extends Scene {
   groundLayer: Phaser.Tilemaps.TilemapLayer;
   metaDataLayer: Phaser.Tilemaps.TilemapLayer;
   chatOnFocus: boolean;
+  shareOnFocus: boolean;
+  videoOnFocus: boolean;
   chatInput: HTMLElement;
-  chatTimer: number;
+  videoInput: HTMLElement;
+  screenShareInput: HTMLElement;
   capsLockOn: boolean;
+
+  chatTimer: number;
+  eventTimer: number;
+  backgroundSND: Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound
 
   cursor: Keys;
   
@@ -101,9 +108,9 @@ export class GameScene extends Scene {
 
     try {
       this.room = await this.client.joinOrCreate("my_room", {playerTexture: currentIndex + 1, name: playerName});
-      let backgroundSND=this.sound.add('backgroundSound');
-      backgroundSND.loop = true;
-      backgroundSND.play();
+      this.backgroundSND=this.sound.add('backgroundSound');
+      this.backgroundSND.loop = true;
+      this.backgroundSND.play();
       
       createCharacterAnims(this.anims);
 
@@ -130,10 +137,13 @@ export class GameScene extends Scene {
                 this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
                 this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(tile.index == 2 || tile.index == 7) { // computer
-                this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.tileEntities[tileId] = new ComputerTile(this, i, j, 'tile_set', tile.index, tileId);
                 this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(19 <= tile.index && tile.index <= 21) { // blackboard
                 this.tileEntities[tileId] = new BlackBoardTile(this, i, j, 'tile_set', tile.index, tileId);
+                this.ojbectGroup.add(this.tileEntities[tileId]);
+              } else if( tile.index == 4) { // coffee
+                this.tileEntities[tileId] = new CoffeeTile(this, i, j, 'tile_set', tile.index, tileId);
                 this.ojbectGroup.add(this.tileEntities[tileId]);
               } else if(tile.index == 15) { // wall
                 this.tileEntities[tileId] = new GroundTile(this, i, j, 'tile_set', tile.index, tileId);
@@ -153,18 +163,15 @@ export class GameScene extends Scene {
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
-      this.chatInput = document.getElementById('chatInput');
+     
       this.chatTimer = 0;
-      this.chatInput.addEventListener('blur', () => {
-        this.chatOnFocus = false;
-      });
-      this.chatInput.addEventListener('focus', () => {
-        this.chatOnFocus = true;
-      });
+      this.eventTimer = 0;
+
       document.addEventListener('keydown', (event) => {
         this.capsLockOn = event.getModifierState('CapsLock');
 
       });
+      this.addInputListener();
       
 
       // Handle incoming chat messages from the server
@@ -222,11 +229,6 @@ export class GameScene extends Scene {
         this.playerGroup.add(entity);
         this.playerEntities[sessionId] = entity;
         entity.setCollideWorldBounds(true);
-
-        console.log(player.name);
-
-        
-        
         if (sessionId === this.room.sessionId) {
           this.currentPlayer = entity;
           
@@ -236,7 +238,18 @@ export class GameScene extends Scene {
           });
           this.physics.add.collider(this.currentPlayer, this.ojbectGroup, (p: any, tile: any) => {
             // TODO: seperate to tile id
-            tile.openEvent(this, this.inputPayload.E);
+            
+            if(tile.tileType == 2 || tile.tileType == 4 ||tile.tileType == 7 ||
+               tile.tileType == 19 || tile.tileType == 20 || tile.tileType == 21 ){
+                if(!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus){
+                  tile.openEvent(this, this.inputPayload.R);
+                }
+            }
+            if(tile.tileType == 3){
+              if(!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus){
+                tile.openEvent(this, this.inputPayload.E);
+              }
+            }
           });
           this.cameras.main.startFollow(this.currentPlayer);
           this.cameras.main.setSize(MAP_WIDTH, MAP_HEIGHT);
@@ -310,55 +323,80 @@ export class GameScene extends Scene {
     this.inputPayload.R = this.cursor.R.isDown;
     if(this.chatTimer>0)
       this.chatTimer--;
+      if(this.eventTimer>0)
+      this.eventTimer--;
     let isTap = false;
     this.currentPlayer.previousX = this.currentPlayer.x;
     this.currentPlayer.previousY = this.currentPlayer.y;
     if(!this.currentPlayer.isSit){
-      if (this.inputPayload.left || (this.inputPayload.A && !this.chatOnFocus)) {
+      if (this.inputPayload.left || (this.inputPayload.A && (!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus))) {
         this.currentPlayer.changeAnims(PlayerState.LEFT);
         this.currentPlayer.x -= velocity;
         isTap = true;
-      } else if (this.inputPayload.right || (this.inputPayload.D && !this.chatOnFocus)) {
+      } else if (this.inputPayload.right || (this.inputPayload.D && (!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus))) {
         this.currentPlayer.changeAnims(PlayerState.RIGHT);
           this.currentPlayer.x += velocity;
           isTap = true;
       }
-      if (this.inputPayload.up || (this.inputPayload.W && !this.chatOnFocus)) {
+      if (this.inputPayload.up || (this.inputPayload.W && (!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus))) {
           this.currentPlayer.changeAnims(PlayerState.UP);
           this.currentPlayer.y -= velocity;
           isTap = true;
-      } else if (this.inputPayload.down || (this.inputPayload.S && !this.chatOnFocus)) {
+      } else if (this.inputPayload.down || (this.inputPayload.S && (!this.chatOnFocus && !this.shareOnFocus && !this.videoOnFocus))) {
           this.currentPlayer.changeAnims(PlayerState.DOWN);
           this.currentPlayer.y += velocity;
           isTap = true;
       }
-
-      if(this.inputPayload.A && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'A' : 'a'; 
-        this.chatTimer = 5;
-        this.inputPayload.A = false;
-      } else if(this.inputPayload.S && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'S' : 's';
-        this.chatTimer = 5;
-        this.inputPayload.S = false;
-      } else if(this.inputPayload.W && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'W' : 'w';
-        this.chatTimer = 5;
-        this.inputPayload.W = false;
-      } else if(this.inputPayload.D && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'D' : 'd';
-        this.chatTimer = 5;
-        this.inputPayload.D = false;
+      if(this.chatInput){
+        this.onSpecialKey(this.inputPayload.A, this.chatOnFocus, this.chatInput, 'A', 'a');
+        this.onSpecialKey(this.inputPayload.S, this.chatOnFocus, this.chatInput, 'S', 's');
+        this.onSpecialKey(this.inputPayload.W, this.chatOnFocus, this.chatInput, 'W', 'w');
+        this.onSpecialKey(this.inputPayload.D, this.chatOnFocus, this.chatInput, 'D', 'd');
+        this.onSpecialKey(this.inputPayload.E, this.chatOnFocus, this.chatInput, 'E', 'e');
+        this.onSpecialKey(this.inputPayload.R, this.chatOnFocus, this.chatInput, 'R', 'r');  
       }
-      else if(this.inputPayload.E && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'E' : 'e';
-        this.chatTimer = 5;
-        this.inputPayload.E = false;
-      } else if(this.inputPayload.R && this.chatOnFocus && !this.chatTimer){
-        this.chatInput.value += this.capsLockOn ? 'R' : 'r';
-        this.chatTimer = 5;
-        this.inputPayload.R = false;
+     if(this.videoInput){
+        this.onSpecialKey(this.inputPayload.A, this.videoOnFocus, this.videoInput, 'A', 'a');
+        this.onSpecialKey(this.inputPayload.S, this.videoOnFocus, this.videoInput, 'S', 's');
+        this.onSpecialKey(this.inputPayload.W, this.videoOnFocus, this.videoInput, 'W', 'w');
+        this.onSpecialKey(this.inputPayload.D, this.videoOnFocus, this.videoInput, 'D', 'd');
+        this.onSpecialKey(this.inputPayload.E, this.videoOnFocus, this.videoInput, 'E', 'e');
+        this.onSpecialKey(this.inputPayload.R, this.videoOnFocus, this.videoInput, 'R', 'r');  
       }
+      if(this.screenShareInput){
+        this.onSpecialKey(this.inputPayload.A, this.shareOnFocus, this.screenShareInput, 'A', 'a');
+        this.onSpecialKey(this.inputPayload.S, this.shareOnFocus, this.screenShareInput, 'S', 's');
+        this.onSpecialKey(this.inputPayload.W, this.shareOnFocus, this.screenShareInput, 'W', 'w');
+        this.onSpecialKey(this.inputPayload.D, this.shareOnFocus, this.screenShareInput, 'D', 'd');
+        this.onSpecialKey(this.inputPayload.E, this.shareOnFocus, this.screenShareInput, 'E', 'e');
+        this.onSpecialKey(this.inputPayload.R, this.shareOnFocus, this.screenShareInput, 'R', 'r');  
+      }
+      // if(this.inputPayload.A && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'A' : 'a'; 
+      //   this.chatTimer = 5;
+      //   this.inputPayload.A = false;
+      // } else if(this.inputPayload.S && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'S' : 's';
+      //   this.chatTimer = 5;
+      //   this.inputPayload.S = false;
+      // } else if(this.inputPayload.W && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'W' : 'w';
+      //   this.chatTimer = 5;
+      //   this.inputPayload.W = false;
+      // } else if(this.inputPayload.D && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'D' : 'd';
+      //   this.chatTimer = 5;
+      //   this.inputPayload.D = false;
+      // }
+      // else if(this.inputPayload.E && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'E' : 'e';
+      //   this.chatTimer = 5;
+      //   this.inputPayload.E = false;
+      // } else if(this.inputPayload.R && this.chatOnFocus && !this.chatTimer){
+      //   this.chatInput.value += this.capsLockOn ? 'R' : 'r';
+      //   this.chatTimer = 5;
+      //   this.inputPayload.R = false;
+      // }
     }
     this.currentPlayer.update();
     if(!isTap)
@@ -394,6 +432,44 @@ export class GameScene extends Scene {
       entity.x = Phaser.Math.Linear(entity.x, serverX, 0.8);
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.8);
     }
+  }
+
+  onSpecialKey(isDown, onFocus, input, upper, lower) {
+    if(isDown && onFocus && !this.chatTimer){
+      input.value += this.capsLockOn ? upper : lower; 
+      this.chatTimer = 5;
+      isDown = false;
+    }
+  }
+
+  addInputListener(){
+      this.chatInput = document.getElementById('chatInput');
+      this.screenShareInput = document.getElementById('screenShareInput');
+      this.videoInput = document.getElementById('videoInput');
+      if(this.chatInput){
+        this.chatInput.addEventListener('blur', () => {
+          this.chatOnFocus = false;
+        });
+        this.chatInput.addEventListener('focus', () => {
+          this.chatOnFocus = true;
+        });
+      }
+      if(this.screenShareInput) {
+        this.screenShareInput.addEventListener('blur', () => {
+          this.shareOnFocus = false;
+        });
+        this.screenShareInput.addEventListener('focus', () => {
+          this.shareOnFocus = true;
+        });
+      }
+      if(this.videoInput){
+        this.videoInput.addEventListener('blur', () => {
+          this.videoOnFocus = false;
+        });
+        this.videoInput.addEventListener('focus', () => {
+          this.videoOnFocus = true;
+        });
+      }
   }
 
   postUpdate() {

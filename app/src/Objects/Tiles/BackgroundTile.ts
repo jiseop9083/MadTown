@@ -2,7 +2,7 @@ import { Tile } from "./Tile";
 import { Player } from "../Player";
 import { GameScene } from "../../Page/Game";
             
-export class ChairTile extends Tile {
+export class BackgroundTile extends Tile {
     size: number;
   
     constructor(
