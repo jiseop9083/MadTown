@@ -2,6 +2,7 @@ import { Player } from "../Objects/Player";
 import { Scene } from "phaser";
 import { TagManager } from "../util/TagManager";
 import Color from "../types/Color";
+import { GameScene } from "../Page/Game";
 
 const tagManager = TagManager.getInstance();
 
@@ -82,6 +83,7 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
         parent: inputContainer,
         width: 200,
         height: 40,
+        id: 'videoInput',
         placeholder: "room name",
         styles: {
           'display': 'flex',
@@ -194,6 +196,8 @@ export const startVideoConference = (scene: Scene, player: Player, mainDiv: HTML
       //   mainDiv.removeChild(stopSharingButton);
       //   removeVideoElement(screenContainer);
       // };
+      const game = window.game.scene.keys.GameScene as GameScene;
+      game.addInputListener();
   })
   .catch((error) => {
     console.error('Error accessing webcam and/or microphone:', error);

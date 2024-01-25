@@ -9,8 +9,8 @@ import { GamblePlayer } from "../Objects/GamblePlayer";
 const dotenv = require('dotenv');
 dotenv.config();
 
-const HTTP_SERVER_URI = process.env.MOCK_HTTP_SERVER_URI;
-const SERVER_URI = process.env.MOCK_SERVER_URI;
+const HTTP_SERVER_URI = process.env.HTTP_SERVER_URI;
+const SERVER_URI = process.env.SERVER_URI;
 const tagManager = TagManager.getInstance();
 
 const MAP_WIDTH = 1000;
@@ -141,7 +141,6 @@ export class Coffee extends Scene {
                             if(sessionId == this.room.sessionId){
                                 this.currentPlayer.changeState(state);
                             }
-                            console.log(entity.playerName.text);
                             if(this.notSelectPerson == entity.playerName.text){
                                 this.waringText.text = '';
                                 this.notSelectPerson = '';
@@ -251,7 +250,6 @@ export class Coffee extends Scene {
                     }
                 }
             }
-            console.log(this.loserNumber);
             if(this.loserNumber <= 1){
                 for (let sessionId in this.playerEntities) {
                     if(this.gamers[sessionId]){
