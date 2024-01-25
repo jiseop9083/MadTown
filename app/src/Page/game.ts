@@ -55,7 +55,7 @@ export class GameScene extends Scene {
     this.load.tilemapTiledJSON('classroom', `${HTTP_SERVER_URI}/json/tiles-classroom.json`);
     this.cursor = {
       ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D,E') as Keyboard),
+      ...(this.input.keyboard.addKeys('W,S,A,D,E,R') as Keyboard),
     }
     
   }
@@ -74,6 +74,10 @@ export class GameScene extends Scene {
   backgroundLayer: Phaser.Tilemaps.TilemapLayer;
   groundLayer: Phaser.Tilemaps.TilemapLayer;
   metaDataLayer: Phaser.Tilemaps.TilemapLayer;
+  chatOnFocus: boolean;
+  chatInput: HTMLElement;
+  chatTimer: number;
+  capsLockOn: boolean;
 
   cursor: Keys;
   
@@ -87,6 +91,7 @@ export class GameScene extends Scene {
       S: false,
       D: false,
       E: false,
+      R: false,
   };
 
   async create() {
@@ -147,6 +152,20 @@ export class GameScene extends Scene {
 
       // 맵의 크기를 이미지의 크기로 조절
       this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+
+      this.chatInput = document.getElementById('chatInput');
+      this.chatTimer = 0;
+      this.chatInput.addEventListener('blur', () => {
+        this.chatOnFocus = false;
+      });
+      this.chatInput.addEventListener('focus', () => {
+        this.chatOnFocus = true;
+      });
+      document.addEventListener('keydown', (event) => {
+        this.capsLockOn = event.getModifierState('CapsLock');
+
+      });
+      
 
       // Handle incoming chat messages from the server
       this.room.onMessage("chat", (messageData) => {
@@ -270,7 +289,7 @@ export class GameScene extends Scene {
         this.fixedTick(time, this.fixedTimeStep);
     }
 
-    this.postUpdate()
+    this.postUpdate();
   }
 
   fixedTick(time, timeStep) {
@@ -278,6 +297,7 @@ export class GameScene extends Scene {
     if (!this.room) { return; }
     // send input to the server
     const velocity = 2;
+
     this.inputPayload.left = this.cursor.left.isDown;
     this.inputPayload.right = this.cursor.right.isDown;
     this.inputPayload.up = this.cursor.up.isDown;
@@ -287,27 +307,57 @@ export class GameScene extends Scene {
     this.inputPayload.S = this.cursor.S.isDown;
     this.inputPayload.D = this.cursor.D.isDown;
     this.inputPayload.W = this.cursor.W.isDown;
+    this.inputPayload.R = this.cursor.R.isDown;
+    if(this.chatTimer>0)
+      this.chatTimer--;
     let isTap = false;
     this.currentPlayer.previousX = this.currentPlayer.x;
     this.currentPlayer.previousY = this.currentPlayer.y;
     if(!this.currentPlayer.isSit){
-      if (this.inputPayload.left) {
+      if (this.inputPayload.left || (this.inputPayload.A && !this.chatOnFocus)) {
         this.currentPlayer.changeAnims(PlayerState.LEFT);
         this.currentPlayer.x -= velocity;
         isTap = true;
-      } else if (this.inputPayload.right) {
+      } else if (this.inputPayload.right || (this.inputPayload.D && !this.chatOnFocus)) {
         this.currentPlayer.changeAnims(PlayerState.RIGHT);
           this.currentPlayer.x += velocity;
           isTap = true;
       }
-      if (this.inputPayload.up) {
+      if (this.inputPayload.up || (this.inputPayload.W && !this.chatOnFocus)) {
           this.currentPlayer.changeAnims(PlayerState.UP);
           this.currentPlayer.y -= velocity;
           isTap = true;
-      } else if (this.inputPayload.down) {
+      } else if (this.inputPayload.down || (this.inputPayload.S && !this.chatOnFocus)) {
           this.currentPlayer.changeAnims(PlayerState.DOWN);
           this.currentPlayer.y += velocity;
           isTap = true;
+      }
+
+      if(this.inputPayload.A && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'A' : 'a'; 
+        this.chatTimer = 5;
+        this.inputPayload.A = false;
+      } else if(this.inputPayload.S && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'S' : 's';
+        this.chatTimer = 5;
+        this.inputPayload.S = false;
+      } else if(this.inputPayload.W && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'W' : 'w';
+        this.chatTimer = 5;
+        this.inputPayload.W = false;
+      } else if(this.inputPayload.D && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'D' : 'd';
+        this.chatTimer = 5;
+        this.inputPayload.D = false;
+      }
+      else if(this.inputPayload.E && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'E' : 'e';
+        this.chatTimer = 5;
+        this.inputPayload.E = false;
+      } else if(this.inputPayload.R && this.chatOnFocus && !this.chatTimer){
+        this.chatInput.value += this.capsLockOn ? 'R' : 'r';
+        this.chatTimer = 5;
+        this.inputPayload.R = false;
       }
     }
     this.currentPlayer.update();

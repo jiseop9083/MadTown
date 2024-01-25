@@ -256,16 +256,19 @@ export const createIntro = (mainDiv : HTMLDivElement) => {
 
         const gameAndChat = tagManager.createDiv({
             parent: gameContainer,
-            id: 'gameAndChat',
             styles: {
                 'display': 'flex',
                 'flex-direction': 'row-reverse',
                 'margin-top': '50px', 
             } 
         });
-
         
         ChatComponent(gameAndChat);
+
+        const gameDiv = tagManager.createDiv({
+            parent: gameAndChat,
+            id: 'gameDiv',
+        });
 
         const buttonDiv = tagManager.createDiv({
             parent: gameContainer,

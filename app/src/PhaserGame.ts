@@ -14,10 +14,9 @@ const config: Phaser.Types.Core.GameConfig = {
     width: MAP_WIDTH,
     height: MAP_HEIGHT,
     backgroundColor: Color.transparent,
-    parent: 'gameAndChat',
+    parent: 'gameDiv',
     physics: { default: "arcade",
         arcade: {
-            debug: true,
             gravity: { y: 0 }
         } 
     },
