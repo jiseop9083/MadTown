@@ -19,6 +19,18 @@
 - Vanilla [TypeScript](https://github.com/microsoft/TypeScript)  - for both client and server sides
 - Pixel art - 찍었습니다
 
+
+### get started
+ - ``` git clonehttps://github.com/jiseop9083/madcamp_week4.git```
+
+ - ```cd ./madcamp_week4/app```
+
+ - ```npm install```
+
+ - ```npm start```
+
+ - http://localhost:1234/ 접속
+
 ## 💻 Service
 
 ### 1️⃣ Intro
