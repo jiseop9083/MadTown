@@ -38,11 +38,9 @@
 - 캐릭터 선택을 하고, player name을 작성합니다.
     - 캐릭터 종류
   
-        ![character1](https://github.com/jiseop9083/madcamp_week4/assets/64767436/ee288df4-d480-4c4a-b199-4da2a7ec01b9)
-
-        ![character2](https://github.com/jiseop9083/madcamp_week4/assets/64767436/931524a0-0c87-4603-84f6-ec78043de3de)
-
-        ![character3](https://github.com/jiseop9083/madcamp_week4/assets/64767436/3f5c7b73-c149-4627-a811-fe5384169ed6)
+       <img src="https://github.com/jiseop9083/madcamp_week4/assets/64767436/ee288df4-d480-4c4a-b199-4da2a7ec01b9" width="200" height="200" />
+       <img src="https://github.com/jiseop9083/madcamp_week4/assets/64767436/931524a0-0c87-4603-84f6-ec78043de3de" width="200" height="200" />
+       <img src="https://github.com/jiseop9083/madcamp_week4/assets/64767436/3f5c7b73-c149-4627-a811-fe5384169ed6" width="200" height="200" />
 
         
 - player name을 작성하지 않고 `Welcome` 버튼을 누를 경우 alert 창으로 입력을 요청합니다.
